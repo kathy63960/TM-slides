@@ -1,3 +1,6 @@
+var isGenerating = false;
+var isGenerated = false;
+
 exports.install = function() {
 	// CMS rendering
 	F.route('/*', view_page);
@@ -8,6 +11,7 @@ exports.install = function() {
 	F.route('#blogsdetail',      view_blogs_detail, ['*Post']);
 
 	// FILES
+        F.file('sitemap.xml', file_xml);
 	F.file('/download/', file_read);
 };
 
@@ -126,4 +130,56 @@ function view_blogs_detail(linker) {
 	options.category = 'Blogs';
 	options.linker = linker;
 	self.$get(options, self.callback('blogs-detail'));
+}
+
+// ============================================
+// XML Sitemap
+// ============================================
+
+
+function file_xml(req, res, validation) {
+ 
+    if (validation)
+        return req.url === '/sitemap.xml';
+ 
+    var options = {hostname: req.hostname(), path: F.path.public('sitemap.xml')};
+     
+    var arr = F.sitemap('home');
+    console.log(this.sitemap('home'));
+ 
+    // Is processed sitemap.xml?
+    if (isGenerated) {
+        console.log('sitemap.xml -> cache');
+        res.continue();
+        return;
+    }
+ 
+    // Handle multiple requests
+    // [isGenerating === true] the request must wait
+    if (isGenerating) {
+        setTimeout(function () {
+            file_xml(req, res, validation);
+        }, 1000);
+        return;
+    }
+ 
+    isGenerating = true;
+ 
+    console.log('sitemap.xml -> creating');
+    var worker = F.worker('sitemap', 'sitemap', 5000);
+ 
+    // Send settings
+    worker.send(options);
+ 
+    // Handle exit
+    worker.once('exit', function () {
+ 
+        console.log('sitemap.xml -> created');
+ 
+        isGenerating = false;
+        isGenerated = true;
+ 
+        res.continue();
+    });
+ 
 }
