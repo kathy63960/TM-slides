@@ -1,2 +1,4 @@
 tmp/*
 logs/*
+/nbproject/
+/node_modules/

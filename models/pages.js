@@ -20,7 +20,7 @@ NEWSCHEMA('Page').make(function(schema) {
 	schema.define('name', 'String(50)');                // Name in manager
 	schema.define('navigations', '[String]');           // In which navigation will be the page?
 	schema.define('parent', 'String(20)');              // Parent page for breadcrumb
-	schema.define('partial', '[String]');               // A partial content
+	schema.define('partial', '[String]');       // A partial content
 	schema.define('perex', 'String(500)');              // Short page description generated according to the "CMS_perex" class in CMS editor
 	schema.define('pictures', '[String]')               // URL addresses for first 5 pictures
 	schema.define('priority', Number);                  // Sorting in navigation
@@ -29,7 +29,8 @@ NEWSCHEMA('Page').make(function(schema) {
 	schema.define('template', 'String(30)');            // Render template views/cms/*.html
 	schema.define('title', 'String(100)', true);        // Meta title
 	schema.define('url', 'String(200)');                // URL (can be realive for showing content or absolute for redirects)
-	schema.define('widgets', '[String]');               // Widgets lists, contains Array of ID widget
+	schema.define('widgets', '[String]');       // Widgets lists, contains Array of ID widget
+	schema.define('description', 'String(250)');// Meta Description
 
 	// Gets listing
 	schema.setQuery(function(error, options, callback) {
@@ -63,10 +64,12 @@ NEWSCHEMA('Page').make(function(schema) {
 		filter.callback(function(err, docs, count) {
 
 			var data = {};
+
 			data.count = count;
 			data.items = docs;
 			data.limit = options.max;
 			data.pages = Math.ceil(data.count / options.max) || 1;
+
 			data.page = options.page + 1;
 
 			// Returns data
@@ -222,7 +225,6 @@ NEWSCHEMA('Page').make(function(schema) {
 						}, true);
 
 					}, function() {
-
 						// DONE
 						if (response.language)
 							response.body = F.translator(response.language, response.body);
@@ -372,6 +374,7 @@ function refresh() {
 		F.global.navigations = navigation;
 		F.global.sitemap = sitemap;
 		F.global.partial = partial;
+
 		F.cache.removeAll('cache.');
 	});
 }
@@ -427,7 +430,6 @@ F.eval(function() {
 			cache = true;
 
 		if (!partial) {
-
 			if (self.language)
 				url = self.language + ':' + url;
 
@@ -462,6 +464,8 @@ F.eval(function() {
 
 				self.sitemap(response.breadcrumb);
 				self.title(response.title);
+				self.description(response.description);
+
 				self.view(view || '~/cms/' + response.template, model);
 			});
 
@@ -495,6 +499,7 @@ String.prototype.tidyCMS = function() {
 			break;
 		body = body.substring(0, beg) + body.substring(index + 1);
 	}
+
 
 	while (true) {
 		beg = body.indexOf(c, beg);

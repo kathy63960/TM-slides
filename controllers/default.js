@@ -57,6 +57,7 @@ function file_read(req, res) {
 	}
 
 	// Custom image resizing
+	var size;
 
 	var size;
 
