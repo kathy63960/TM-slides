@@ -372,7 +372,9 @@ function refresh() {
 		partial.orderBy('priority', false);
 
 		F.global.navigations = navigation;
+                console.log(navigation);
 		F.global.sitemap = sitemap;
+                console.log(sitemap);
 		F.global.partial = partial;
 
 		F.cache.removeAll('cache.');
