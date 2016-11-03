@@ -330,6 +330,7 @@ function refresh() {
 
 	var sitemap = {};
 	var helper = {};
+        var link_parent = {};
 	var navigation = {};
 	var partial = [];
 
@@ -344,8 +345,10 @@ function refresh() {
 		var key = (doc.language ? doc.language + ':' : '') + doc.url;
 
 		helper[doc.id] = key;
+                link_parent[doc.id] = doc.name;
 		sitemap[key] = { id: doc.id, url: doc.url, name: doc.name, title: doc.title, parent: doc.parent, language: doc.language, icon: doc.icon, tags: doc.tags };
 
+                //console.log(doc);
 		if (!doc.navigations)
 			return;
 
@@ -354,7 +357,7 @@ function refresh() {
 			var name = doc.navigations[i];
 			if (!navigation[name])
 				navigation[name] = [];
-			navigation[name].push({ url: doc.url, name: doc.name, title: doc.title, priority: doc.priority, language: doc.language, icon: doc.icon, tags: doc.tags, external: doc.url.match(/(https|http)\:\/\//) != null });
+			navigation[name].push({ url: doc.url, name: doc.name, title: doc.title, priority: doc.priority, parent: doc.parent, language: doc.language, icon: doc.icon, tags: doc.tags, external: doc.url.match(/(https|http)\:\/\//) != null });
 		}
 	};
 
@@ -367,14 +370,34 @@ function refresh() {
 				sitemap[key].parent = helper[parent];
 		});
 
+                Object.keys(navigation.mainmenu).forEach(function(key) {
+                        console.log(key);
+			var parent = navigation.mainmenu[key].parent;
+			if (parent)
+				navigation.mainmenu[key].parent = link_parent[parent];
+		});
+
 		// Sorts navigation according to priority
 		Object.keys(navigation).forEach((name) => navigation[name].orderBy('priority', false));
 		partial.orderBy('priority', false);
 
+                var home = 'homepage';
+
 		F.global.navigations = navigation;
-                console.log(navigation);
+                for(var i=0,len=navigation.mainmenu.length;i<len;i++) {
+                    var elem = navigation.mainmenu[i];
+                    console.log(elem);
+                    if(elem.url === '/')
+                        home = elem.name;
+                    //if(elem.url !== "/" && elem.url !== '/blogs/')
+                        F.sitemap_add(elem.name + '       : '+elem.title+'      --> '+elem.url+'  --> '+elem.parent);
+                }
+                //console.log(F.sitemap('Accueil'));
+                var arr = F.sitemap_navigation(home);
+                console.log(arr);
+                
 		F.global.sitemap = sitemap;
-                console.log(sitemap);
+                //console.log(sitemap);
 		F.global.partial = partial;
 
 		F.cache.removeAll('cache.');

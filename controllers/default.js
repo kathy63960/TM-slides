@@ -143,10 +143,7 @@ function file_xml(req, res, validation) {
         return req.url === '/sitemap.xml';
  
     var options = {hostname: req.hostname(), path: F.path.public('sitemap.xml')};
-     
-    var arr = F.sitemap('home');
-    console.log(this.sitemap('home'));
- 
+      
     // Is processed sitemap.xml?
     if (isGenerated) {
         console.log('sitemap.xml -> cache');
@@ -164,6 +161,10 @@ function file_xml(req, res, validation) {
     }
  
     isGenerating = true;
+    
+    options.sitemap = F.global.navigations;
+    //console.log(arr);
+    
  
     console.log('sitemap.xml -> creating');
     var worker = F.worker('sitemap', 'sitemap', 5000);
