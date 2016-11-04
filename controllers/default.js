@@ -1,18 +1,18 @@
 var isGenerating = false;
 var isGenerated = false;
 
-exports.install = function() {
-	// CMS rendering
-	F.route('/*', view_page);
-	F.route('/demo/');
+exports.install = function () {
+    // CMS rendering
+    F.route('/*', view_page);
+    F.route('/demo/');
 
-	// POSTS
-	F.route('#blogs',            view_blogs, ['*Post']);
-	F.route('#blogsdetail',      view_blogs_detail, ['*Post']);
+    // POSTS
+    F.route('#blogs', view_blogs, ['*Post']);
+    F.route('#blogsdetail', view_blogs_detail, ['*Post']);
 
-	// FILES
-        F.file('sitemap.xml', file_xml);
-	F.file('/download/', file_read);
+    // FILES
+    F.file('sitemap.xml', file_xml);
+    F.file('/download/', file_read);
 };
 
 // ==========================================================================
@@ -20,9 +20,9 @@ exports.install = function() {
 // ==========================================================================
 
 function view_page() {
-	var self = this;
-	// models/pages.js --> Controller.prototype.render()
-	self.render(self.url);
+    var self = this;
+    // models/pages.js --> Controller.prototype.render()
+    self.render(self.url);
 }
 
 // ==========================================================================
@@ -34,73 +34,73 @@ function view_page() {
 // URL: /download/*.*
 function file_read(req, res) {
 
-	var id = req.split[1].replace('.' + req.extension, '');
-	var resize = req.query.s && (req.extension === 'jpg' || req.extension === 'gif' || req.extension === 'png') ? true : false;
+    var id = req.split[1].replace('.' + req.extension, '');
+    var resize = req.query.s && (req.extension === 'jpg' || req.extension === 'gif' || req.extension === 'png') ? true : false;
 
-	if (!resize) {
-		// Reads specific file by ID
-		F.exists(req, res, function(next, filename) {
-			DB('files').binary.read(id, function(err, stream, header) {
+    if (!resize) {
+        // Reads specific file by ID
+        F.exists(req, res, function (next, filename) {
+            DB('files').binary.read(id, function (err, stream, header) {
 
-				if (err) {
-					next();
-					return res.throw404();
-				}
+                if (err) {
+                    next();
+                    return res.throw404();
+                }
 
-				var writer = require('fs').createWriteStream(filename);
+                var writer = require('fs').createWriteStream(filename);
 
-				CLEANUP(writer, function() {
-					res.file(filename);
-					next();
-				});
+                CLEANUP(writer, function () {
+                    res.file(filename);
+                    next();
+                });
 
-				stream.pipe(writer);
-			});
-		});
-		return;
-	}
+                stream.pipe(writer);
+            });
+        });
+        return;
+    }
 
-	// Custom image resizing
-	var size;
+    // Custom image resizing
+    var size;
 
-	// Small hack for the file cache.
-	// F.exists() uses req.uri.pathname for creating temp identificator and skips all query strings by creating (because this hack).
-	if (req.query.s) {
-		size = req.query.s.parseInt();
-		req.uri.pathname = req.uri.pathname.replace('.', size + '.');
-	}
+    // Small hack for the file cache.
+    // F.exists() uses req.uri.pathname for creating temp identificator and skips all query strings by creating (because this hack).
+    if (req.query.s) {
+        size = req.query.s.parseInt();
+        req.uri.pathname = req.uri.pathname.replace('.', size + '.');
+    }
 
-	// Below method checks if the file exists (processed) in temporary directory
-	// More information in total.js documentation
-	F.exists(req, res, 10, function(next, filename) {
+    // Below method checks if the file exists (processed) in temporary directory
+    // More information in total.js documentation
+    F.exists(req, res, 10, function (next, filename) {
 
-		// Reads specific file by ID
-		DB('files').binary.read(id, function(err, stream, header) {
+        // Reads specific file by ID
+        DB('files').binary.read(id, function (err, stream, header) {
 
-			if (err) {
-				next();
-				return res.throw404();
-			}
+            if (err) {
+                next();
+                return res.throw404();
+            }
 
-			var writer = require('fs').createWriteStream(filename);
+            var writer = require('fs').createWriteStream(filename);
 
-			CLEANUP(writer, function() {
+            CLEANUP(writer, function () {
 
-				// Releases F.exists()
-				next();
+                // Releases F.exists()
+                next();
 
-				// Image processing
-				res.image(filename, function(image) {
-					image.output(req.extension);
-					req.extension === 'jpg' && image.quality(85);
-					size && image.resize(size + '%');
-					image.minify();
-				});
-			});
+                // Image processing
+                res.image(filename, function (image) {
+                    image.output(req.extension);
+                    req.extension === 'jpg' && image.quality(85);
+                    size && image.resize(size + '%');
+                    image.minify();
+                });
+            });
 
-			stream.pipe(writer);
-		});
-	});
+            stream.pipe(writer);
+        });
+    });
 }
 
 // ============================================
@@ -108,26 +108,26 @@ function file_read(req, res) {
 // ============================================
 
 function view_blogs() {
-	var self = this;
-	var options = {};
+    var self = this;
+    var options = {};
 
-	options.category = 'Blogs';
+    options.category = 'Blogs';
 
-	if (self.query.q)
-		options.search = self.query.q;
+    if (self.query.q)
+        options.search = self.query.q;
 
-	if (self.query.page)
-		options.page = self.query.page;
+    if (self.query.page)
+        options.page = self.query.page;
 
-	self.$query(options, self.callback('blogs-all'));
+    self.$query(options, self.callback('blogs-all'));
 }
 
 function view_blogs_detail(linker) {
-	var self = this;
-	var options = {};
-	options.category = 'Blogs';
-	options.linker = linker;
-	self.$get(options, self.callback('blogs-detail'));
+    var self = this;
+    var options = {};
+    options.category = 'Blogs';
+    options.linker = linker;
+    self.$get(options, self.callback('blogs-detail'));
 }
 
 // ============================================
@@ -136,19 +136,19 @@ function view_blogs_detail(linker) {
 
 
 function file_xml(req, res, validation) {
- 
+
     if (validation)
         return req.url === '/sitemap.xml';
- 
+
     var options = {hostname: req.hostname(), path: F.path.public('sitemap.xml')};
-      
+
     // Is processed sitemap.xml?
     if (isGenerated) {
         console.log('sitemap.xml -> cache');
         res.continue();
         return;
     }
- 
+
     // Handle multiple requests
     // [isGenerating === true] the request must wait
     if (isGenerating) {
@@ -157,28 +157,28 @@ function file_xml(req, res, validation) {
         }, 1000);
         return;
     }
- 
+
     isGenerating = true;
-    
+
     options.sitemap = F.global.navigations;
     //console.log(arr);
-    
- 
+
+
     console.log('sitemap.xml -> creating');
     var worker = F.worker('sitemap', 'sitemap', 5000);
- 
+
     // Send settings
     worker.send(options);
- 
+
     // Handle exit
     worker.once('exit', function () {
- 
+
         console.log('sitemap.xml -> created');
- 
+
         isGenerating = false;
         isGenerated = true;
- 
+
         res.continue();
     });
- 
+
 }

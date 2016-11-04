@@ -67,7 +67,7 @@ NEWSCHEMA('Post').make(function(schema) {
 		options.id && filter.where('id', options.id);
 		options.language && filter.where('language', options.language);
 		options.template && filter.where('template', options.template);
-
+                
 		filter.callback(callback, 'error-404-post');
 	});
 
