@@ -45,7 +45,7 @@
 			<div data-component="grid" data-component-path="pages.grid" data-pagination-path="pages.filter.page" data-component-id="pages.grid" data-max="auto" data-page="@(Page: #)" data-pages="@(# pages,# page,# pages,# pages)" data-items="@(# items,# item,# items,# items)" data-empty="@(Database does not contain any data.)">
 				<script type="text/html">
 				<tr>
-					<td{{ if ispartial }} class="green"{{ fi }}>{{ if language }}<span class="fs11 silver mr5">{{ language }}</span>{{ fi }}{{ if icon }}<span class="fa fa-{{ icon }} w18 mr5"></span>{{ fi }}{{ name }}</td>
+					<td class="{{ if ispartial }} green{{ fi }} {{ if isnoindex || isnofollow }} red{{ fi }}" >{{ if language }}<span class="fs11 silver mr5">{{ language }}</span>{{ fi }}{{ if icon }}<span class="fa fa-{{ icon }} w18 mr5"></span>{{ fi }}{{ name }}</td>
 					<td class="col-xs-3 silver fs11 hidden-xs"><span class="fa fa-globe"></span> {{ url }}</td>
 					<td class="col-xs-2 fs11 hidden-xs">{{ if navigations && navigations.length > 0 }}<span class="fa fa-sitemap"></span> {{ navigations | join }}{{ fi }}</td>
 					<td style="width:40px" class="ui-center silver fs10 hidden-xs active">{{ priority }}</td>
@@ -133,6 +133,8 @@
 			<div class="col-md-2 m">
 				<div data-component="textbox" data-component-path="pages.form.name" data-maxlenght="50">@(Name)</div>
 				<div class="help">@(Name in sitemap.)</div>
+                                <div data-component="checkbox" data-component-path="pages.form.isnoindex" class="green mt10">@(noIndex)</div>
+                                <div data-component="checkbox" data-component-path="pages.form.isnofollow" class="green mt10">@(noFollow)</div>
 			</div>
                         <div class="col-md-4 m">
 				<div data-component="textarea" data-component-path="pages.form.description" data-maxlenght="250" data-icon="fa-google">@(Description)</div>

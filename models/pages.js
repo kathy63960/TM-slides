@@ -31,6 +31,8 @@ NEWSCHEMA('Page').make(function(schema) {
 	schema.define('url', 'String(200)');                // URL (can be realive for showing content or absolute for redirects)
 	schema.define('widgets', '[String]');       // Widgets lists, contains Array of ID widget
 	schema.define('description', 'String(250)');// Meta Description
+        schema.define('isnoindex', Boolean);                // noindex
+        schema.define('isnofollow', Boolean);               // nofollow
 
 	// Gets listing
 	schema.setQuery(function(error, options, callback) {
@@ -58,7 +60,7 @@ NEWSCHEMA('Page').make(function(schema) {
 
 		filter.take(take);
 		filter.skip(skip);
-		filter.fields('id', 'name', 'parent', 'url', 'navigations', 'ispartial', 'priority', 'language', 'icon');
+		filter.fields('id', 'name', 'parent', 'url', 'navigations', 'ispartial', 'priority', 'language', 'icon','isnofollow','isnoindex');
 		filter.sort('name');
 
 		filter.callback(function(err, docs, count) {
@@ -421,6 +423,7 @@ F.eval(function() {
 	};
 
 	Controller.prototype.partial = function(url, callback) {
+            console.log("tototototo");
 		var self = this;
 		var page = F.global.partial.find(n => n.url === url && n.language === (self.language || ''));
 
@@ -433,7 +436,7 @@ F.eval(function() {
 	};
 
 	Controller.prototype.page = function(url, view, model, cache, partial) {
-
+console.log("tititititit", partial);
 		var self = this;
 		var tv = typeof(view);
 
@@ -483,6 +486,8 @@ F.eval(function() {
 
 				self.repository.cms = true;
 				self.repository.render = true;
+                                self.repository.follow = (response.isnofollow?'nofollow':'follow');
+                                self.repository.index = (response.isnoindex?'noindex':'all');
 				self.repository.page = response;
 
 				NOSQL('pages').counter.hit(self.repository.page.id);
