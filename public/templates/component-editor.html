@@ -422,7 +422,11 @@
 		};
 
 		self.getPerex = function() {
-			return self.doFind('.CMS_perex').html().replace(/<\/?[^>]+(>|$)/g, '');
+                    if(!self.doFind('.CMS_perex') || !self.doFind('.CMS_perex').html())
+                        return;
+                    console.log(self.doFind('.CMS_perex'));
+                    
+                    return self.doFind('.CMS_perex').html().replace(/<\/?[^>]+(>|$)/g, '');
 		};
 
 		self.getKeywords = function() {
