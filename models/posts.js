@@ -85,7 +85,6 @@ NEWSCHEMA('Post').make(function(schema) {
 
 		if (newbie) {
 			model.id = UID();
-			model.datecreated = F.datetime;
 			model.admincreated = controller.user.name;
 		} else {
 			model.dateupdated = F.datetime;

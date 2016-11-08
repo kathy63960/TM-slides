@@ -25,4 +25,4 @@ mail.smtp                 : YOUR.SMTPSERVER.COM
 default-image-converter   : gm
 
 // Default theme
-default-theme             : default
+default-theme		  : canvas
