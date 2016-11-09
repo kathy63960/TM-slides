@@ -29,4 +29,9 @@
 	@{if repository.page && repository.page.body}
 		@{!repository.page.body}
 	@{fi}
+        @{if repository.page && repository.page.partial && repository.page.partial.length }
+            @{foreach p in repository.page.partial}
+		@{!p.body}
+            @{end}
+	@{fi}
 @{fi}

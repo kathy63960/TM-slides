@@ -21,7 +21,7 @@ NEWSCHEMA('Page').make(function(schema) {
 	schema.define('name', 'String(50)');                // Name in manager
 	schema.define('navigations', '[String]');           // In which navigation will be the page?
 	schema.define('parent', 'String(20)');              // Parent page for breadcrumb
-	schema.define('partial', '[String]');       // A partial content
+	schema.define('partial', '[String]');               // A partial content
 	schema.define('perex', 'String(500)');              // Short page description generated according to the "CMS_perex" class in CMS editor
 	schema.define('pictures', '[String]')               // URL addresses for first 5 pictures
 	schema.define('priority', Number);                  // Sorting in navigation
@@ -437,7 +437,7 @@ F.eval(function() {
 	};
 
 	Controller.prototype.page = function(url, view, model, cache, partial) {
-console.log("tititititit", partial);
+
 		var self = this;
 		var tv = typeof(view);
 
