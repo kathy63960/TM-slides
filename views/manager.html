@@ -10,9 +10,10 @@
 	<meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no" />
 	<meta name="robots" content="all,follow" />
 	<link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css" />
-    <link rel="stylesheet" href="//fonts.googleapis.com/css?family=Source+Sans+Pro:400,200,700&subset=latin,latin-ext" />
+        <link rel="stylesheet" href="//fonts.googleapis.com/css?family=Source+Sans+Pro:400,200,700&subset=latin,latin-ext" />
 	<link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/codemirror/5.19.0/codemirror.min.css" />
-	@{import('head', 'manager.css', 'favicon.ico')}
+	<link rel="stylesheet" media="screen" href="//handsontable.com/dist/handsontable.full.min.css">
+        @{import('head', 'manager.css', 'favicon.ico')}
 	<script>
 		var managerurl="@{!CONFIG('manager-url')}";
 		var currency='@{!config.custom.currency_entity}';
@@ -39,6 +40,7 @@
 			<a href="/" title="@{config.name}" class="highlight" target="_blank"><span class="fa fa-globe"></span></a>
 			<a class="jrouting hidden" href="@{CONFIG('manager-url')}/" title="@(Dashboard)" data-role="dashboard"><span class="fa fa-dashboard"></span></a>
 			<a class="jrouting hidden" href="@{CONFIG('manager-url')}/pages/" title="@(Pages)" data-role="pages"><span class="fa fa-file-text"></span></a>
+                        <a class="jrouting hidden" href="@{CONFIG('manager-url')}/categories/" title="@(Categories)" data-role="categories"><span class="fa fa-table"></span></a>
 			<a class="jrouting hidden" href="@{CONFIG('manager-url')}/posts/" title="@(Posts)" data-role="posts"><span class="fa fa-hashtag"></span></a>
 			<a class="jrouting hidden" href="@{CONFIG('manager-url')}/newsletter/" title="@(Newsletter)" data-role="newsletter"><span class="fa fa-envelope"></span></a>
 			<a class="jrouting hidden" href="@{CONFIG('manager-url')}/settings/" title="@(Settings)" data-role="settings"><span class="fa fa-cogs"></span></a>
@@ -49,7 +51,8 @@
 	<div id="body">
 		<div data-jc="page" class="hidden" data-jc-path="common.page" data-if="dashboard" data-template="/templates/manager-dashboard.html"></div>
 		<div data-jc="page" class="hidden" data-jc-path="common.page" data-if="pages" data-template="/templates/manager-pages.html" data-reload="pages_reload"></div>
-		<div data-jc="page" class="hidden" data-jc-path="common.page" data-if="posts" data-template="/templates/manager-posts.html" data-reload="posts_reload"></div>
+		<div data-jc="page" class="hidden" data-jc-path="common.page" data-if="categories" data-template="/templates/manager-categories.html" data-reload="categories_reload"></div>
+                <div data-jc="page" class="hidden" data-jc-path="common.page" data-if="posts" data-template="/templates/manager-posts.html" data-reload="posts_reload"></div>
 		<div data-jc="page" class="hidden" data-jc-path="common.page" data-if="newsletter" data-template="/templates/manager-newsletter.html"></div>
 		<div data-jc="page" class="hidden" data-jc-path="common.page" data-if="settings" data-template="/templates/manager-settings.html"></div>
 		<div data-jc="page" class="hidden" data-jc-path="common.page" data-if="system" data-template="/templates/manager-system.html"></div>
@@ -62,6 +65,7 @@
 	<script src="//cdnjs.cloudflare.com/ajax/libs/codemirror/5.19.0/mode/htmlmixed/htmlmixed.min.js"></script>
 	<script src="//cdnjs.cloudflare.com/ajax/libs/codemirror/5.19.0/mode/xml/xml.min.js"></script>
 	<script src="//cdnjs.cloudflare.com/ajax/libs/codemirror/5.19.0/mode/css/css.min.js"></script>
+        <script src="//handsontable.com/dist/handsontable.full.min.js"></script>
 
 	@{import('manager.js')}
 	@{section('script')}

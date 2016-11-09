@@ -34,6 +34,10 @@ if (window.su) {
 	can('posts') && jR.route(managerurl + '/posts/', function() {
 		SET('common.page', 'posts');
 	});
+        
+        can('categories') && jR.route(managerurl + '/categories/', function() {
+		SET('common.page', 'categories');
+	});
 
 	can('newsletter') && jR.route(managerurl + '/newsletter/', function() {
 		SET('common.page', 'newsletter');
