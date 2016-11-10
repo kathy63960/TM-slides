@@ -35,8 +35,8 @@ if (window.su) {
 		SET('common.page', 'posts');
 	});
         
-        can('categories') && jR.route(managerurl + '/categories/', function() {
-		SET('common.page', 'categories');
+        can('dynpages') && jR.route(managerurl + '/dynpages/', function() {
+		SET('common.page', 'dynpages');
 	});
 
 	can('newsletter') && jR.route(managerurl + '/newsletter/', function() {

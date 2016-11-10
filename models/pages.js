@@ -16,7 +16,6 @@ NEWSCHEMA('Page').make(function(schema) {
 	schema.define('icon', 'String(20)');                // Font-Awesome icon name
 	schema.define('ispartial', Boolean);                // Is only partial page (the page will be shown in another page)
 	schema.define('keywords', 'String(200)');           // Meta keywords
-	schema.define('description', 'String(200)');           // Meta description
 	schema.define('language', 'Lower(2)');              // For which language is the page targeted?
 	schema.define('name', 'String(50)');                // Name in manager
 	schema.define('navigations', '[String]');           // In which navigation will be the page?
@@ -30,8 +29,8 @@ NEWSCHEMA('Page').make(function(schema) {
 	schema.define('template', 'String(30)');            // Render template views/cms/*.html
 	schema.define('title', 'String(100)', true);        // Meta title
 	schema.define('url', 'String(200)');                // URL (can be realive for showing content or absolute for redirects)
-	schema.define('widgets', '[String]');       // Widgets lists, contains Array of ID widget
-	schema.define('description', 'String(250)');// Meta Description
+	schema.define('widgets', '[String]');               // Widgets lists, contains Array of ID widget
+	schema.define('description', 'String(250)');        // Meta Description
         schema.define('isnoindex', Boolean);                // noindex
         schema.define('isnofollow', Boolean);               // nofollow
 

@@ -40,7 +40,7 @@
 			<a href="/" title="@{config.name}" class="highlight" target="_blank"><span class="fa fa-globe"></span></a>
 			<a class="jrouting hidden" href="@{CONFIG('manager-url')}/" title="@(Dashboard)" data-role="dashboard"><span class="fa fa-dashboard"></span></a>
 			<a class="jrouting hidden" href="@{CONFIG('manager-url')}/pages/" title="@(Pages)" data-role="pages"><span class="fa fa-file-text"></span></a>
-                        <a class="jrouting hidden" href="@{CONFIG('manager-url')}/categories/" title="@(Categories)" data-role="categories"><span class="fa fa-table"></span></a>
+                        <a class="jrouting hidden" href="@{CONFIG('manager-url')}/dynpages/" title="@(Dynpages)" data-role="dynpages"><span class="fa fa-table"></span></a>
 			<a class="jrouting hidden" href="@{CONFIG('manager-url')}/posts/" title="@(Posts)" data-role="posts"><span class="fa fa-hashtag"></span></a>
 			<a class="jrouting hidden" href="@{CONFIG('manager-url')}/newsletter/" title="@(Newsletter)" data-role="newsletter"><span class="fa fa-envelope"></span></a>
 			<a class="jrouting hidden" href="@{CONFIG('manager-url')}/settings/" title="@(Settings)" data-role="settings"><span class="fa fa-cogs"></span></a>
@@ -51,7 +51,7 @@
 	<div id="body">
 		<div data-jc="page" class="hidden" data-jc-path="common.page" data-if="dashboard" data-template="/templates/manager-dashboard.html"></div>
 		<div data-jc="page" class="hidden" data-jc-path="common.page" data-if="pages" data-template="/templates/manager-pages.html" data-reload="pages_reload"></div>
-		<div data-jc="page" class="hidden" data-jc-path="common.page" data-if="categories" data-template="/templates/manager-categories.html" data-reload="categories_reload"></div>
+		<div data-jc="page" class="hidden" data-jc-path="common.page" data-if="dynpages" data-template="/templates/manager-dynpages.html" data-reload="dynpages_reload"></div>
                 <div data-jc="page" class="hidden" data-jc-path="common.page" data-if="posts" data-template="/templates/manager-posts.html" data-reload="posts_reload"></div>
 		<div data-jc="page" class="hidden" data-jc-path="common.page" data-if="newsletter" data-template="/templates/manager-newsletter.html"></div>
 		<div data-jc="page" class="hidden" data-jc-path="common.page" data-if="settings" data-template="/templates/manager-settings.html"></div>
