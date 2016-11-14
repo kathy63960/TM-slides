@@ -1,6 +1,6 @@
 name                      : CMS
 version                   : 8.0.1
-author                    : Totaljs.com Ltd
+author                    : ToManage SAS
 
 // A relative URL address into the eshop management
 manager-url               : /$manager

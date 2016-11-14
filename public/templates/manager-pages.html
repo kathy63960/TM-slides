@@ -45,7 +45,7 @@
 			<div data-jc="grid" data-jc-path="pages.grid" data-pagination-path="pages.filter.page" data-jc-id="pages.grid" data-max="auto" data-page="@(Page: #)" data-pages="@(# pages,# page,# pages,# pages)" data-items="@(# items,# item,# items,# items)" data-empty="@(Database does not contain any data.)">
 				<script type="text/html">
 				<tr>
-					<td{{ if ispartial }} class="green"{{ fi }}>{{ if language }}<span class="fs11 silver mr5">{{ language }}</span>{{ fi }}{{ if icon }}<span class="fa fa-{{ icon }} w18 mr5"></span>{{ fi }}{{ name }}</td>
+					<td class="{{ if ispartial }}green {{else if isnoindex}}red {{fi}}">{{ if language }}<span class="fs11 silver mr5">{{ language }}</span>{{ fi }}{{ if icon }}<span class="fa fa-{{ icon }} w18 mr5"></span>{{ fi }}{{ name }}</td>
 					<td class="col-xs-3 silver fs11 hidden-xs"><span class="fa fa-globe"></span> {{ url }}</td>
 					<td class="col-xs-2 fs11 hidden-xs">{{ if navigations && navigations.length > 0 }}<span class="fa fa-sitemap"></span> {{ navigations | join }}{{ fi }}</td>
 					<td style="width:40px" class="ui-center silver fs10 hidden-xs active">{{ priority }}</td>
