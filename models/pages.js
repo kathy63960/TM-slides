@@ -423,7 +423,6 @@ F.eval(function() {
 	};
 
 	Controller.prototype.partial = function(url, callback) {
-            console.log("tototototo");
 		var self = this;
 		var page = F.global.partial.find(n => n.url === url && n.language === (self.language || ''));
 
@@ -494,7 +493,7 @@ F.eval(function() {
 
 				self.sitemap(response.breadcrumb);
 				self.title(response.title);
-				self.description(response.description);
+				self.description(response.perex || response.description);
 
 				self.view(view || '~/cms/' + response.template, model);
 			});

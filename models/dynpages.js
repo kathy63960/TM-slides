@@ -6,6 +6,7 @@ NEWSCHEMA('Dynpage').make(function (schema) {
     schema.define('url', 'String(200)');
     schema.define('pageId', 'String(20)');
     schema.define('navigations', 'String');           // In which navigation will be the page?
+    schema.define('keywords', 'String(200)');           // Meta keywords
     schema.define('parent', 'String(20)');              // Parent page for breadcrumb
     schema.define('var1', 'String(200)');
     schema.define('var2', 'String(200)');
