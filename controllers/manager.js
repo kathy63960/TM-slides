@@ -35,6 +35,10 @@ exports.install = function() {
 	F.route(url + '/api/pages/dependencies/',  json_pages_dependencies);
 	F.route(url + '/api/pages/clear/',         json_clear, ['*Page']);
 	F.route(url + '/api/pages/sitemap/',       json_pages_sitemap);
+        
+        // DYNPAGES
+        F.route(url + '/api/dynpages/',            json_query, ['*Dynpage']);
+        F.route(url + '/api/dynpages/',            json_dynpages_save, ['post', '*Dynpage'], 512);
 
 	// WIDGETS
 	F.route(url + '/api/widgets/',             json_query, ['*Widget']);
@@ -275,6 +279,21 @@ function json_pages_sitemap() {
 	SITEMAP.sitemap = F.global.sitemap;
 	SITEMAP.partial = F.global.partial;
 	this.json(SITEMAP);
+}
+
+// ==========================================================================
+// DYNAMIC TABLE PAGES
+// ==========================================================================
+
+// Saves (update or create) dynamic table
+function json_dynpages_save() {
+	var self = this;
+
+	// Is auto-creating URL?
+	self.body.$save(self, self.callback());
+
+	// Clears view cache
+	setTimeout(() => F.cache.removeAll('cache.'), 2000);
 }
 
 // ==========================================================================

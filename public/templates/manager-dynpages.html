@@ -1,8 +1,6 @@
 <div class="filter">
     <div class="container">
-        <nav class="buttons">
-            <a href="javascript:void(0)" class="exec" data-exec="dynpages_new"><i class="fa fa-plus-circle"></i><span>@(New)</span></a>
-        </nav>
+
         <div class="caption"><span class="fa fa-table mr5"></span> @(Dynpages)</div>
         <div class="row">
             <div class="col-md-3 m">
@@ -24,7 +22,8 @@
 </div>
 
 <div class="container">
-    <div id="dynpages_table"></div>
+    <div data-jc="handsontable" data-jc-path="dynpages.data" data-jc-id="dynpages_table" data-exec="dynpages_save"></div>
+
     <div data-jc="grid1" data-jc-path="posts.grid" data-pagination-path="posts.filter.page" data-jc-id="posts.grid" data-max="auto" data-page="@(Page: #)" data-pages="@(# pages,# page,# pages,# pages)" data-items="@(# items,# item,# items,# items)" data-empty="@(Database does not contain any data.)">
         <script type="text/html">
             <tr>
@@ -104,31 +103,90 @@
         posts.subcategory = {};
         posts.subcategory.visible = false;
 
-        var data = [
-            ["2016", 10, 11, 12, 13, 12, 12, 12, 12, 12],
-            ["2017", 20, 11, 14, 13],
-            ["2018", 30, 15, 12, 13]
+        var dynpages = {};
+        dynpages.filter = {};
+        dynpages.filter.page = 1;
+
+        dynpages.data = [
+            {title: "title", sitemap: "title", url: "/"}
         ];
 
-        var container = document.getElementById('dynpages_table');
-        var hot = new Handsontable(container, {
-            data: data,
-            colWidths: [100, 100,100, 100, 100, 100, 100, 100, 100, 100],
-            rowHeaders: true,
-            contextMenu: true,
-            colHeaders: ["title","sitemap", "url", "menu", "parent menu", "default page", "var1", "var2", "var3", "var4"],
-            columns: [
-                {data: "title"},
-                {data: "sitemap"},
-                {data: "url"},
-                {data: "menu"},
-                {data: "parent"},
-                {data: "pageId"},
-                {data: "var1"},
-                {data: "var2"},
-                {data: "var3"},
-                {data: "var4"}
-            ]
+        //AJAX('GET {0}/api/dynpages/'.format(managerurl), {}, function (response) {
+        //    console.log(response);
+        //});
+
+
+        COMPONENT('handsontable', function () {
+            var self = this;
+            var hot;
+
+            self.make = function () {
+                var builder = [];
+                var attrs = [];
+
+                attrs.attr('id', self.attr('data-jc-id'));
+
+                var exec = self.attr('data-exec');
+
+                builder.push('<nav class="buttons">');
+                //builder.push('<a href="javascript:void(0)" class="exec" data-exec="{0}"><i class="fa fa-plus-circle green"></i><span>@(Save)</span></a>'.format(exec));
+                builder.push('</nav>',
+                        '<div class="row">',
+                        '<div class="col-md-12">');
+                builder.push('<div class="handsontable1" {0} ></div>'.format(attrs.join(' ')));
+                builder.push('</div></div>');
+
+                self.html(builder.join(''));
+
+                var container = self.find('.handsontable1');
+                hot = new Handsontable(container[0], {
+                    data: dynpages.data,
+                    colWidths: [100, 100, 100, 100, 100, 100, 100, 100, 100, 100],
+                    rowHeaders: true,
+                    contextMenu: ['row_above', 'row_below', 'remove_row'],
+                    colHeaders: ["title", "sitemap", "url", "menu", "parent menu", "default page", "var1", "var2", "var3", "var4"],
+                    // minSpareRows: 1,
+                    columns: [
+                        {'data': "title"},
+                        {'data': "sitemap"},
+                        {'data': "url"},
+                        {'data': "navigations"},
+                        {'data': "parent"},
+                        {'data': "pageId"},
+                        {'data': "var1"},
+                        {'data': "var2"},
+                        {'data': "var3"},
+                        {'data': "var4"}
+                    ],
+                    afterChange: function (data, source) {
+                        console.log(source, data);
+                        console.log(dynpages.data);
+                        if (source !== "edit")
+                            return;
+
+                        for (var i = 0, len = data.length; i < len; i++) {
+                            //if (dynpages.data[data[i][0]].id) //update id
+                            //    dynpage_edit(dynpages.data[data[i][0]])
+                            //else //create new line
+                            dynpage_save(data[i][0]);
+                        }
+                    },
+                    beforeRemoveRow: function (index, amount, logicalRows) {
+                        console.log(index, amount, logicalRows);
+                        for (var i = 0; i < logicalRows.length; i++)
+                            dynpage_remove(dynpages.data[i].id);
+                    }
+                });
+
+                dynpages_refresh(true);
+
+            };
+
+            self.update = function (data) {
+                console.log(data);
+                hot.loadData(data.items);
+            };
+
         });
 
         ON('#posts.grid', function (component) {
@@ -195,9 +253,10 @@
             };
         });
 
-        function posts_edit(id) {
+        function dynpage_remove(id) {
             var loading = FIND('loading').show();
-            AJAX('GET {0}/api/posts/{1}/'.format(managerurl, id), function (response) {
+
+            AJAX('DELETE {0}/api/dynpages/{1}'.format(managerurl, id), function (response) {
 
                 loading.hide(500);
 
@@ -207,66 +266,38 @@
                     return;
                 }
 
-                FIND('#posts.editor').setTemplate(response.template);
-                SET('posts.form', $.extend({$index: index}, response), true);
-                SET('posts.response', null);
-                SET('common.form', 'posts');
-
-                // /templates/component-editor.html:
-                cmseditor_widgets(false);
+                success();
             });
         }
 
-        function dynpages_new() {
-            SET('posts.form', {author: su.name}, true);
-            SET('posts.response', null);
-            SET('common.form', 'posts');
+        function dynpage_save(idx) {
+            var loading = FIND('loading').show();
 
-            // /templates/component-editor.html:
-            cmseditor_widgets(false);
-        }
+            AJAX('POST {0}/api/dynpages/'.format(managerurl), dynpages.data[idx], function (response) {
 
-        function posts_category() {
-            SET('posts.category', {}, true);
-            SET('common.form', 'posts.category');
-        }
+                loading.hide(500);
 
-        // Method refreshes categories
-        function posts_refresh_codelists() {
-            AJAX('GET {0}/api/posts/codelists/'.format(managerurl), function (response) {
-                SET('posts.categories', response.categories);
-                SET('posts.templates', response.templates);
+                // Error prevention
+                if (response instanceof Array) {
+                    FIND('message').warning(response[0].error);
+                    return;
+                }
+
+                dynpages.data[idx] = response;
+
+                success();
             });
         }
 
         // Method refreshes grid
-        function posts_refresh(reset) {
+        function dynpages_refresh(reset) {
             if (reset)
-                posts.filter.page = 1;
-            AJAX('GET {0}/api/posts/'.format(managerurl), posts.filter, 'posts.grid');
-        }
+                dynpages.filter.page = 1;
 
-        function posts_sourcecode() {
-            FIND('#posts.editor').showSourceCode();
-        }
-
-        function posts_device(type) {
-            var e = FIND('editor');
-            SETTER('loading', 'show')('loading', 'hide', 1000);
-            switch (type) {
-                case 1:
-                    e.device('lg');
-                    return;
-                case 2:
-                    e.device('md');
-                    return;
-                case 3:
-                    e.device('sm');
-                    return;
-                case 4:
-                    e.device('xs');
-                    return;
-            }
+            AJAX('GET {0}/api/dynpages/'.format(managerurl), function (response) {
+                FIND('handsontable').update(response);
+                SET('dynpages.data', response.items);
+            });
         }
 
         function dynpages_reload() {
