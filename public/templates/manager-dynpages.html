@@ -159,9 +159,9 @@
                         {'data': "var4"}
                     ],
                     afterChange: function (data, source) {
-                        console.log(source, data);
-                        console.log(dynpages.data);
-                        if (source !== "edit")
+                        //console.log(source, data);
+                        //console.log(dynpages.data);
+                        if (source !== "edit" && source !== 'autofill')
                             return;
 
                         for (var i = 0, len = data.length; i < len; i++) {
@@ -172,7 +172,7 @@
                         }
                     },
                     beforeRemoveRow: function (index, amount, logicalRows) {
-                        console.log(index, amount, logicalRows);
+                        //console.log(index, amount, logicalRows);
                         for (var i = 0; i < logicalRows.length; i++)
                             dynpage_remove(dynpages.data[i].id);
                     }
@@ -183,7 +183,7 @@
             };
 
             self.update = function (data) {
-                console.log(data);
+                //console.log(data);
                 hot.loadData(data.items);
             };
 
