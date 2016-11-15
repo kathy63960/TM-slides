@@ -1,6 +1,6 @@
 var allowed = { fr: true, en: true };
 
-F.onLocate = function(req, res) {
+F.onLocale = function(req, res) {
 
     var language = req.query.language;
 
