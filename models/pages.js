@@ -396,7 +396,7 @@ function refresh() {
                 }
                 //console.log(F.sitemap('Accueil'));
                 var arr = F.sitemap_navigation(home);
-                console.log(arr);
+                //console.log(arr);
                 
 		F.global.sitemap = sitemap;
                 //console.log(sitemap);
@@ -416,7 +416,10 @@ F.eval(function() {
 
 		if (page)
 			self.page(self.url, view, model, cache);
-		else
+		else if(self.url === '/') {
+                    self.redirect('/fr/'); // redirect to default page fr
+                    //self.plain("toto");
+                } else
 			self.throw404();
 
 		return self;
@@ -488,6 +491,7 @@ F.eval(function() {
                                 self.repository.follow = (response.isnofollow?'nofollow':'follow');
                                 self.repository.index = (response.isnoindex?'noindex':'all');
 				self.repository.page = response;
+                                self.repository.language = self.language;
 
 				NOSQL('pages').counter.hit(self.repository.page.id);
 
