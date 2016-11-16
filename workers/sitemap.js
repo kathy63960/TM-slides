@@ -26,20 +26,25 @@ function createXML() {
 
     // Many items
     //write(hostname + '/', lastmod, '1.0000', 'weekly');
+    //console.log(options.sitemap);
 
     Object.keys(options.sitemap).forEach(function (key) {
         var arr = options.sitemap[key];
-        for (var i = 0, length = arr.length; i < length; i++) {
-            write(hostname + arr[i].url, lastmod, '1', 'weekly');
 
-            //value.sitemap // current sitemap id
-            //value.id      // current item id
-            //value.name    // current item name
-            //value.url     // current item url
-            //value.last    // is the last item?
-            //value.first   // is the first item?
-            //value.index   // current item index in sitemap (in the parent tree)
-        }
+        if (arr.noIndex)
+            return;
+
+        //for (var i = 0, length = arr.length; i < length; i++) {
+        write(hostname + arr.url, lastmod, '1', 'weekly');
+
+        //value.sitemap // current sitemap id
+        //value.id      // current item id
+        //value.name    // current item name
+        //value.url     // current item url
+        //value.last    // is the last item?
+        //value.first   // is the first item?
+        //value.index   // current item index in sitemap (in the parent tree)
+        //}
     });
 
     // Complete

@@ -127,7 +127,11 @@ NEWSCHEMA('Page').make(function(schema) {
 		if (model.url[0] !== '#' && !model.url.startsWith('http:') && !model.url.startsWith('https:')) {
 			model.url = U.path(model.url);
 			if (model.url[0] !== '/')
-				model.url = '/' + model.url;
+                            model.url = '/' + model.url;
+                        
+                        // Add language in url /en/+url
+                        if(model.language && model.url.substring(1,2) !== model.language)
+                            model.url =  "/" + model.language + model.url;
 		}
 
 		(newbie ? nosql.insert(model) : nosql.update(model).where('id', model.id)).callback(function(err, count) {
@@ -348,7 +352,7 @@ function refresh() {
 
 		helper[doc.id] = key;
                 link_parent[doc.id] = doc.name;
-		sitemap[key] = { id: doc.id, url: doc.url, name: doc.name, title: doc.title, parent: doc.parent, language: doc.language, icon: doc.icon, tags: doc.tags };
+		sitemap[key] = { id: doc.id, url: doc.url, name: doc.name, title: doc.title, parent: doc.parent, language: doc.language, icon: doc.icon, tags: doc.tags, noIndex : doc.isnoindex };
 
                 //console.log(doc);
 		if (!doc.navigations)
@@ -359,7 +363,7 @@ function refresh() {
 			var name = doc.navigations[i];
 			if (!navigation[name])
 				navigation[name] = [];
-			navigation[name].push({ url: doc.url, name: doc.name, title: doc.title, priority: doc.priority, parent: doc.parent, language: doc.language, icon: doc.icon, tags: doc.tags, external: doc.url.match(/(https|http)\:\/\//) != null });
+			navigation[name].push({ url: doc.url, name: doc.name, title: doc.title, priority: doc.priority, parent: doc.parent, language: doc.language, icon: doc.icon, tags: doc.tags, noIndex : doc.isnoindex, external: doc.url.match(/(https|http)\:\/\//) != null });
 		}
 	};
 
@@ -389,20 +393,36 @@ function refresh() {
                 for(var i=0,len=navigation.mainmenu.length;i<len;i++) {
                     var elem = navigation.mainmenu[i];
                     console.log(elem);
+                    
+                    if(elem.noIndex)
+                        continue;
+                    
                     if(elem.url === '/')
                         home = elem.name;
                     //if(elem.url !== "/" && elem.url !== '/blogs/')
                         F.sitemap_add(elem.name + '       : '+elem.title+'      --> '+elem.url+'  --> '+elem.parent);
                 }
-                //console.log(F.sitemap('Accueil'));
-                var arr = F.sitemap_navigation(home);
-                //console.log(arr);
                 
-		F.global.sitemap = sitemap;
-                //console.log(sitemap);
-		F.global.partial = partial;
+                NOSQL('dynpages').find().callback(function(err,docs){
+                    //console.log(docs);
+                    
+                    for(var i=0,len=docs.length;i<len;i++) {
+                        var key = (docs[i].language ? docs[i].language + ':' : '') + docs[i].url
+                        
+                        sitemap[key] = { id: docs[i].id, url: docs[i].url, name: docs[i].sitemap, title: docs[i].title, parent: docs[i].parent};
+                    }
+                    
+                    //console.log(F.sitemap('Accueil'));
+                    //var arr = F.sitemap_navigation(home);
+                    //console.log(arr);
+                
+                    F.global.sitemap = sitemap;
+                    //console.log(sitemap);
+                    F.global.partial = partial;
 
-		F.cache.removeAll('cache.');
+                    F.cache.removeAll('cache.'); 
+                    
+                });
 	});
 }
 

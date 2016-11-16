@@ -9,6 +9,10 @@ exports.install = function () {
     // POSTS
     F.route('#blogs', view_blogs, ['*Post']);
     F.route('#blogsdetail', view_blogs_detail, ['*Post']);
+    
+    // DYNAMIC PAGES
+    F.route('#dynamic', view_dynamic, ['*Dynpage']);
+    F.route('#dynamic_lg', view_dynamic, ['*Dynpage']);
 
     // FILES
     F.file('sitemap.xml', file_xml);
@@ -130,6 +134,15 @@ function view_blogs_detail(linker) {
     self.$get(options, self.callback('blogs-detail'));
 }
 
+function view_dynamic() {
+    var self = this;
+    var options = {};
+    options.category = 'Pages';
+    //console.log(self);
+    options.path = self.url;
+    self.$get(options, self.callback);
+}
+
 // ============================================
 // XML Sitemap
 // ============================================
@@ -160,7 +173,7 @@ function file_xml(req, res, validation) {
 
     isGenerating = true;
 
-    options.sitemap = F.global.navigations;
+    options.sitemap = F.global.sitemap;
     //console.log(arr);
 
 

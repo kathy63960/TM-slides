@@ -51,6 +51,27 @@ NEWSCHEMA('Dynpage').make(function (schema) {
         });
     });
 
+    // Gets a specific post
+    schema.setGet(function (error, model, options, callback) {
+
+        if (options.category)
+            options.category = options.category.slug();
+
+        var filter = NOSQL('dynpage').one();
+
+        console.log(options);
+        //options.category && filter.where('category_linker', options.category);
+        options.linker && filter.where('linker', options.linker);
+        options.id && filter.where('id', options.id);
+        options.language && filter.where('language', options.language);
+        options.template && filter.where('template', options.template);
+
+        filter.callback(function(item){
+            return console.log(item);
+            //callback
+        }, 'error-404-post');
+    });
+
     // Saves the model into the database
     schema.setSave(function (error, model, options, callback) {
 
@@ -59,6 +80,32 @@ NEWSCHEMA('Dynpage').make(function (schema) {
 
         if (newbie)
             model.id = UID();
+        
+        // control url format
+        var arr = model.url.split('/');
+        
+        arr = arr.filter(String);
+        
+        var url = "";
+        if(model.language && arr[0] !== model.language)
+            url += "/" + model.language;
+        
+        if(arr[0] == 'pages')
+            arr.shift(); //suppress first element;
+        
+        if(arr[1] == 'pages') {
+            arr.shift(); //suppress 2 first elements
+            arr.shift();
+        }
+        
+        url+='/pages';
+        
+        for(var i=0;i<arr.length;i++)
+            url += "/"+arr[i];
+        
+        url += '/';
+        
+        model.url = url;
 
         (newbie ? nosql.insert(model.$clean()) : nosql.modify(model).where('id', model.id));
         callback(model);
