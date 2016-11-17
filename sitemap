@@ -3,4 +3,4 @@ homepage                 : @(Homepage)               --> /
 blogs                    : @(Blogs)                  --> /blogs/                      --> homepage
 blogsdetail              : @(Blog detail)            --> /blogs/{0}/                  --> blogs
 dynamic                  : @(Dynamic)                --> /pages/*                     --> homepage
-dynamic_lg               : @(Dynamic)                --> /{0}/pages/*                 --> homepage
+//dynamic_lg               : @(Dynamic)                --> /{0}/pages/*                 --> homepage

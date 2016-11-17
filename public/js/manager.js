@@ -1,5 +1,5 @@
 // Trims empty fields
-languages = languages.trim();
+//languages = languages.trim();
 
 var common = {};
 
@@ -94,9 +94,7 @@ function can(name) {
 }
 
 Tangular.register('price', function(value, format) {
-	if (value == null)
-		value = 0;
-	return currency.format(value.format(format));
+	return currency.format((value || 0).format(format));
 });
 
 Tangular.register('join', function(value, delimiter) {

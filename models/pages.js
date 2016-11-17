@@ -16,6 +16,7 @@ NEWSCHEMA('Page').make(function(schema) {
 	schema.define('icon', 'String(20)');                // Font-Awesome icon name
 	schema.define('ispartial', Boolean);                // Is only partial page (the page will be shown in another page)
 	schema.define('keywords', 'String(200)');           // Meta keywords
+	schema.define('description', 'String(250)');           // Meta description
 	schema.define('language', 'Lower(2)');              // For which language is the page targeted?
 	schema.define('name', 'String(50)');                // Name in manager
 	schema.define('navigations', '[String]');           // In which navigation will be the page?
@@ -30,9 +31,8 @@ NEWSCHEMA('Page').make(function(schema) {
 	schema.define('title', 'String(100)', true);        // Meta title
 	schema.define('url', 'String(200)');                // URL (can be realive for showing content or absolute for redirects)
 	schema.define('widgets', '[String]');               // Widgets lists, contains Array of ID widget
-	schema.define('description', 'String(250)');        // Meta Description
-        schema.define('isnoindex', Boolean);                // noindex
-        schema.define('isnofollow', Boolean);               // nofollow
+    schema.define('isnoindex', Boolean);                // noindex
+    schema.define('isnofollow', Boolean);               // nofollow
 
 	// Gets listing
 	schema.setQuery(function(error, options, callback) {
@@ -66,12 +66,10 @@ NEWSCHEMA('Page').make(function(schema) {
 		filter.callback(function(err, docs, count) {
 
 			var data = {};
-
 			data.count = count;
 			data.items = docs;
 			data.limit = options.max;
 			data.pages = Math.ceil(data.count / options.max) || 1;
-
 			data.page = options.page + 1;
 
 			// Returns data
@@ -127,8 +125,7 @@ NEWSCHEMA('Page').make(function(schema) {
 		if (model.url[0] !== '#' && !model.url.startsWith('http:') && !model.url.startsWith('https:')) {
 			model.url = U.path(model.url);
 			if (model.url[0] !== '/')
-                            model.url = '/' + model.url;
-                        
+				model.url = '/' + model.url;
                         // Add language in url /en/+url
                         if(model.language && model.url.substring(1,2) !== model.language)
                             model.url =  "/" + model.language + model.url;
@@ -231,6 +228,7 @@ NEWSCHEMA('Page').make(function(schema) {
 						}, true);
 
 					}, function() {
+
 						// DONE
 						if (response.language)
 							response.body = F.translator(response.language, response.body);
@@ -388,7 +386,6 @@ function refresh() {
 		partial.orderBy('priority', false);
 
                 var home = 'homepage';
-
 		F.global.navigations = navigation;
                 for(var i=0,len=navigation.mainmenu.length;i<len;i++) {
                     var elem = navigation.mainmenu[i];
@@ -415,13 +412,10 @@ function refresh() {
                     //console.log(F.sitemap('Accueil'));
                     //var arr = F.sitemap_navigation(home);
                     //console.log(arr);
-                
-                    F.global.sitemap = sitemap;
+		F.global.sitemap = sitemap;
                     //console.log(sitemap);
-                    F.global.partial = partial;
-
-                    F.cache.removeAll('cache.'); 
-                    
+		F.global.partial = partial;
+		F.cache.removeAll('cache.');
                 });
 	});
 }
@@ -480,6 +474,7 @@ F.eval(function() {
 			cache = true;
 
 		if (!partial) {
+
 			if (self.language)
 				url = self.language + ':' + url;
 
@@ -516,9 +511,7 @@ F.eval(function() {
 				NOSQL('pages').counter.hit(self.repository.page.id);
 
 				self.sitemap(response.breadcrumb);
-				self.title(response.title);
-				self.description(response.perex || response.description);
-
+				self.meta(response.title, response.perex || response.description, response.keywords);
 				self.view(view || '~/cms/' + response.template, model);
 			});
 
@@ -552,7 +545,6 @@ String.prototype.tidyCMS = function() {
 			break;
 		body = body.substring(0, beg) + body.substring(index + 1);
 	}
-
 
 	while (true) {
 		beg = body.indexOf(c, beg);
