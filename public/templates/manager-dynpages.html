@@ -141,23 +141,24 @@
                 var container = self.find('.handsontable1');
                 hot = new Handsontable(container[0], {
                     data: dynpages.data,
-                    colWidths: [100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100],
+                    colWidths: [100, 100, 100, 100, 50, 100, 100, 100, 100, 100, 100, 100],
                     rowHeaders: true,
                     contextMenu: ['row_above', 'row_below', 'remove_row'],
-                    colHeaders: ["title", "sitemap", "url","keywords", "menu", "parent menu", "default page", "var1", "var2", "var3", "var4"],
+                    colHeaders: ["title", "sitemap", "url","keywords", "langue","menu", "parent menu", "default page", "var1", "var2", "var3", "var4"],
                     // minSpareRows: 1,
                     columns: [
                         {'data': "title"},
                         {'data': "sitemap"},
                         {'data': "url"},
                         {'data': "keywords"},
+                        {'data': "language"},
                         {'data': "navigations"},
                         {'data': "parent"},
                         {'data': "pageId"},
-                        {'data': "var1"},
-                        {'data': "var2"},
-                        {'data': "var3"},
-                        {'data': "var4"}
+                        {'data': "var.1"},
+                        {'data': "var.2"},
+                        {'data': "var.3"},
+                        {'data': "var.4"}
                     ],
                     afterChange: function (data, source) {
                         //console.log(source, data);

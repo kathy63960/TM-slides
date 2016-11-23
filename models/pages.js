@@ -31,8 +31,8 @@ NEWSCHEMA('Page').make(function(schema) {
 	schema.define('title', 'String(100)', true);        // Meta title
 	schema.define('url', 'String(200)');                // URL (can be realive for showing content or absolute for redirects)
 	schema.define('widgets', '[String]');               // Widgets lists, contains Array of ID widget
-    schema.define('isnoindex', Boolean);                // noindex
-    schema.define('isnofollow', Boolean);               // nofollow
+        schema.define('isnoindex', Boolean);                // noindex
+        schema.define('isnofollow', Boolean);               // nofollow
 
 	// Gets listing
 	schema.setQuery(function(error, options, callback) {
@@ -79,6 +79,52 @@ NEWSCHEMA('Page').make(function(schema) {
 
 	// Gets a specific page
 	schema.setGet(function(error, model, options, callback) {
+            
+                // Check if dynamic pages
+                var url = options.url && options.url.split('/');
+                if(url)
+                    url = url.filter(String);
+                
+                if(url && (url[0] == 'pages' || url[1] == 'pages')) {
+                    var dyna = NOSQL('dynpages').one();
+
+                    //console.log(options);
+                    //options.category && filter.where('category_linker', options.category);
+                    options.url && dyna.where('url', options.url);
+                    //options.language && dyna.where('language', options.language);
+
+                    return dyna.callback(function(err, dynItem){
+                        //console.log(err, doc);
+                        !dynItem && error.push('error-404-page');
+                        if(!dynItem)
+                            return callback(dynItem);
+                        
+                        var filter = NOSQL('pages').one();
+
+                        dynItem.pageId && filter.where('name', dynItem.pageId);
+
+                        filter.callback(function(err, doc) {
+                            !doc && error.push('error-404-page');
+                            
+                            if(doc) {
+                                // Replace var in body var
+                                for(var i=1,len=dynItem.var.length; i<len;i++) {
+                                    doc.title = doc.title.replace('{{var'+i+'}}', dynItem.var[i]);
+                                    doc.description = doc.description.replace('{{var'+i+'}}', dynItem.var[i]);
+                                    doc.perex = doc.perex.replace('{{var'+i+'}}', dynItem.var[i]);
+                                    doc.body = doc.body.replace('{{var'+i+'}}', dynItem.var[i]);
+                                }
+                            }
+                            
+                            
+                            callback(doc);
+                        });
+                        
+                        
+                    });
+                    
+                }
+                    
 
 		var filter = NOSQL('pages').one();
 

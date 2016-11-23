@@ -8,10 +8,11 @@ NEWSCHEMA('Dynpage').make(function (schema) {
     schema.define('navigations', 'String');           // In which navigation will be the page?
     schema.define('keywords', 'String(200)');           // Meta keywords
     schema.define('parent', 'String(20)');              // Parent page for breadcrumb
-    schema.define('var1', 'String(200)');
-    schema.define('var2', 'String(200)');
-    schema.define('var3', 'String(200)');
-    schema.define('var4', 'String(200)');
+    schema.define('language', 'Lower(2)');              // For which language is the page targeted?
+    schema.define('var', '[String(200)]');
+    //schema.define('var2', 'String(200)');
+    //schema.define('var3', 'String(200)');
+    // schema.define('var4', 'String(200)');
 
     // Gets listing
     schema.setQuery(function (error, options, callback) {
@@ -57,7 +58,7 @@ NEWSCHEMA('Dynpage').make(function (schema) {
         if (options.category)
             options.category = options.category.slug();
 
-        var filter = NOSQL('dynpage').one();
+        var filter = NOSQL('dynpages').one();
 
         console.log(options);
         //options.category && filter.where('category_linker', options.category);
@@ -100,8 +101,11 @@ NEWSCHEMA('Dynpage').make(function (schema) {
         
         url+='/pages';
         
-        for(var i=0;i<arr.length;i++)
-            url += "/"+arr[i];
+        if(!arr.length)
+            url+='/'+model.sitemap;
+        else
+            for(var i=0;i<arr.length;i++)
+                url += "/"+arr[i];
         
         url += '/';
         

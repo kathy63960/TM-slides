@@ -9,10 +9,6 @@ exports.install = function () {
     // POSTS
     F.route('#blogs', view_blogs, ['*Post']);
     F.route('#blogsdetail', view_blogs_detail, ['*Post']);
-    
-    // DYNAMIC PAGES
-    F.route('#dynamic', view_dynamic, ['*Dynpage']);
-    F.route('#dynamic_lg', view_dynamic, ['*Dynpage']);
 
     // FILES
     F.file('sitemap.xml', file_xml);
@@ -27,6 +23,17 @@ function view_page() {
     var self = this;
     // models/pages.js --> Controller.prototype.render()
     self.render(self.url);
+}
+
+//TODO A supprimer
+function view_dynamic() {
+    var self = this;
+    var options = {};
+    console.log("Dynamic !!!");
+    options.category = 'Pages';
+    //console.log(self);
+    options.path = self.url;
+    self.$get(options, self.callback);
 }
 
 // ==========================================================================
@@ -132,15 +139,6 @@ function view_blogs_detail(linker) {
     options.category = 'Blogs';
     options.linker = linker;
     self.$get(options, self.callback('blogs-detail'));
-}
-
-function view_dynamic() {
-    var self = this;
-    var options = {};
-    options.category = 'Pages';
-    //console.log(self);
-    options.path = self.url;
-    self.$get(options, self.callback);
 }
 
 // ============================================
