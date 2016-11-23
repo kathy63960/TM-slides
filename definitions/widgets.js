@@ -23,3 +23,15 @@ GETSCHEMA('Widget').addTransform('23cee236ba', function(error, model, data, call
 
 	callback(F.view('widgets/contactform'));
 });
+
+// Breadcrumb Widget
+GETSCHEMA('Widget').addTransform('16112322320001wyc1', function(error, model, data, callback) {
+
+	// data.settings
+	// data.page
+	// data.controller
+        
+        data.settings = data.settings.split('\n');
+
+	callback(F.view('widgets/breadcrumb', data));
+});

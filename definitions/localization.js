@@ -11,7 +11,7 @@ F.onLocale = function(req, res) {
 
         return language;
     }
-    
+
     language = req.path[0];
     
     if (language) {

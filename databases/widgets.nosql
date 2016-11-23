@@ -9,3 +9,4 @@
 {"datecreated":"2015-08-30T21:36:50.118Z","istemplate":false,"icon":"","body":"","name":"Blogs","id":"d5467a1697"}
 {"datecreated":"2015-08-30T22:17:31.611Z","istemplate":false,"icon":"","body":"","name":"Contact form","id":"23cee236ba"}
 {"datecreated":"2015-09-02T21:46:52.000Z","istemplate":true,"icon":"photo","body":"<hr />\n<br />\n<div class=\"row\" data-component=\"gallery\">\n    <div class=\"col-md-2 col-sm-3 col-xs-4 CMS_repeat gallery\">\n        <img src=\"/img/reference.png\" alt=\"Picture\" data-width=\"800\" data-height=\"600\" data-size=\"30%\" class=\"img-responsive CMS_edit\" />\n    </div>\n</div>\n<hr />","name":"Gallery","id":"4e7ac1a3a9"}
+{"id":"16112322320001wyc1","name":"Breadcrumb","category":"","body":"","css":"","icon":"","istemplate":false,"datecreated":"2016-11-23T21:32:32.907Z","admincreated":"Administrator","dateupdated":"2016-11-23T22:00:03.665Z","adminupdated":"Administrator"}
