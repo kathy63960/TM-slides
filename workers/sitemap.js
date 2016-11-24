@@ -35,7 +35,7 @@ function createXML() {
             return;
 
         //for (var i = 0, length = arr.length; i < length; i++) {
-        write(hostname + arr.url, lastmod, '1', 'weekly');
+        write(hostname + arr.url, lastmod, '1', 'daily');
 
         //value.sitemap // current sitemap id
         //value.id      // current item id
