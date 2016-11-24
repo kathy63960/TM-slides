@@ -145,7 +145,7 @@
                     rowHeaders: true,
                     contextMenu: ['row_above', 'row_below', 'remove_row'],
                     colHeaders: ["title", "sitemap", "url","keywords", "langue","menu", "parent menu", "default page", "var1", "var2", "var3", "var4"],
-                    // minSpareRows: 1,
+                    minSpareRows: 1,
                     columns: [
                         {'data': "title"},
                         {'data': "sitemap"},
@@ -258,7 +258,7 @@
         function dynpage_remove(id) {
             var loading = FIND('loading').show();
 
-            AJAX('DELETE {0}/api/dynpages/{1}'.format(managerurl, id), function (response) {
+            AJAX('DELETE {0}/api/dynpages'.format(managerurl), {id: id}, function (response) {
 
                 loading.hide(500);
 

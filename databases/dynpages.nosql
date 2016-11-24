@@ -1,5 +1,1 @@
-{"id":"16111411500001lxw1","title":"toto","sitemap":"toto","url":"/pages/toto/","pageId":"dynamic","navigations":"","parent":"","keywords":"","language":"","var":["","a","b","c","d"]}
-{"id":"16111412240001lxw1","title":"title","sitemap":"title","url":"/pages/title/","pageId":"dynamic","navigations":"mainmenu","parent":"home","keywords":"hi","language":"","var":["","b1","b2","b3","b4"]}
-{"id":"16111411420001lxc1","title":"t","sitemap":"tata","url":"/pages/tata/","pageId":"dynamic","navigations":"mainmenu","parent":"home","keywords":"","language":"","var":["","c1","c2","c3","c4"]}
-{"id":"16111412360001xlf1","title":"tutu","sitemap":"zzz","url":"/pages/zzz/","pageId":"dynamic","navigations":"mainmenu","parent":"home","keywords":"","language":"","var":["","c5","c6","c7","c8"]}
-{"id":"16111418100001wug1","title":"title","sitemap":"tutu","url":"/pages/tutu/","pageId":"dynamic","navigations":"","parent":"","keywords":"","language":"","var":["","c9","c10","c11","c12"]}
+{"id":"16111418100001wug1","title":"title","sitemap":"tutu","url":"/pages/tutu/","pageId":"","navigations":"","parent":"","keywords":"","language":"","var":["","c9","c10","c11","c12"]}

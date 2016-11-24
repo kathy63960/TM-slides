@@ -39,6 +39,7 @@ exports.install = function() {
         // DYNPAGES
         F.route(url + '/api/dynpages/',            json_query, ['*Dynpage']);
         F.route(url + '/api/dynpages/',            json_dynpages_save, ['post', '*Dynpage'], 512);
+        F.route(url + '/api/dynpages/',            json_remove, ['delete', '*Dynpage']);
 
 	// WIDGETS
 	F.route(url + '/api/widgets/',             json_query, ['*Widget']);

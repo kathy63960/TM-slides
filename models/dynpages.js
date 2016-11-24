@@ -10,9 +10,6 @@ NEWSCHEMA('Dynpage').make(function (schema) {
     schema.define('parent', 'String(20)');              // Parent page for breadcrumb
     schema.define('language', 'Lower(2)');              // For which language is the page targeted?
     schema.define('var', '[String(200)]');
-    //schema.define('var2', 'String(200)');
-    //schema.define('var3', 'String(200)');
-    // schema.define('var4', 'String(200)');
 
     // Gets listing
     schema.setQuery(function (error, options, callback) {
@@ -67,10 +64,17 @@ NEWSCHEMA('Dynpage').make(function (schema) {
         options.language && filter.where('language', options.language);
         options.template && filter.where('template', options.template);
 
-        filter.callback(function(item){
+        filter.callback(function (item) {
             return console.log(item);
             //callback
         }, 'error-404-post');
+    });
+
+    // Removes a specific page
+    schema.setRemove(function (error, id, callback) {
+        var db = NOSQL('dynpages');
+        db.remove().where('id', id).callback(callback);
+        db.counter.remove(id);
     });
 
     // Saves the model into the database
@@ -81,34 +85,34 @@ NEWSCHEMA('Dynpage').make(function (schema) {
 
         if (newbie)
             model.id = UID();
-        
+
         // control url format
         var arr = model.url.split('/');
-        
+
         arr = arr.filter(String);
-        
+
         var url = "";
-        if(model.language && arr[0] !== model.language)
+        if (model.language && arr[0] !== model.language)
             url += "/" + model.language;
-        
-        if(arr[0] == 'pages')
+
+        if (arr[0] == 'pages')
             arr.shift(); //suppress first element;
-        
-        if(arr[1] == 'pages') {
+
+        if (arr[1] == 'pages') {
             arr.shift(); //suppress 2 first elements
             arr.shift();
         }
-        
-        url+='/pages';
-        
-        if(!arr.length)
-            url+='/'+model.sitemap;
+
+        url += '/pages';
+
+        if (!arr.length)
+            url += '/' + model.sitemap;
         else
-            for(var i=0;i<arr.length;i++)
-                url += "/"+arr[i];
-        
+            for (var i = 0; i < arr.length; i++)
+                url += "/" + arr[i];
+
         url += '/';
-        
+
         model.url = url;
 
         (newbie ? nosql.insert(model.$clean()) : nosql.modify(model).where('id', model.id));

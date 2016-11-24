@@ -451,8 +451,8 @@ function refresh() {
                     
                     for(var i=0,len=docs.length;i<len;i++) {
                         var key = (docs[i].language ? docs[i].language + ':' : '') + docs[i].url
-                        
-                        sitemap[key] = { id: docs[i].id, url: docs[i].url, name: docs[i].sitemap, title: docs[i].title, parent: docs[i].parent};
+                        if(docs[i].pageId)
+                            sitemap[key] = { id: docs[i].id, url: docs[i].url, name: docs[i].sitemap, title: docs[i].title, parent: docs[i].parent};
                     }
                     
                     //console.log(F.sitemap('Accueil'));
