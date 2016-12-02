@@ -39,7 +39,7 @@ NEWSCHEMA('Post').make(function(schema) {
 		filter.take(take);
 		filter.skip(skip);
 		filter.fields('id', 'category', 'name', 'language', 'datecreated', 'linker', 'category_linker', 'pictures', 'perex', 'tags');
-		filter.sort('datecreated');
+		filter.sort('datecreated', true);
 
 		filter.callback(function(err, docs, count) {
 
@@ -91,6 +91,9 @@ NEWSCHEMA('Post').make(function(schema) {
 			model.adminupdated = controller.user.name;
 		}
 
+		if (!model.datecreated)
+			model.datecreated = F.datetime;
+
 		model.linker = model.datecreated.format('yyyyMMdd') + '-' + model.name.slug();
 
 		var category = F.global.posts.find('name', model.category);
@@ -116,6 +119,11 @@ NEWSCHEMA('Post').make(function(schema) {
 	schema.addWorkflow('clear', function(error, model, options, callback) {
 		NOSQL('posts').remove().callback(refresh_cache);
 		callback(SUCCESS(true));
+	});
+
+	// Stats
+	schema.addWorkflow('stats', function(error, model, options, callback) {
+		NOSQL('posts').counter.monthly(options.id, callback);
 	});
 });
 

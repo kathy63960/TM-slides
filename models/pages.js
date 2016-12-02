@@ -177,7 +177,7 @@ NEWSCHEMA('Page').make(function(schema) {
                             model.url =  "/" + model.language + model.url;
 		}
 
-		(newbie ? nosql.insert(model) : nosql.update(model).where('id', model.id)).callback(function(err, count) {
+		(newbie ? nosql.insert(model) : nosql.modify(model).where('id', model.id)).callback(function(err, count) {
 			F.emit('pages.save', model);
 			setTimeout2('pages', refresh, 1000);
 			callback(SUCCESS(true));
@@ -203,6 +203,11 @@ NEWSCHEMA('Page').make(function(schema) {
 
 			callback();
 		});
+	});
+
+	// Stats
+	schema.addWorkflow('stats', function(error, model, options, callback) {
+		NOSQL('pages').counter.monthly(options.id, callback);
 	});
 
 	// Renders page

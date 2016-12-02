@@ -1,18 +1,17 @@
 var isGenerating = false;
 var isGenerated = false;
+exports.install = function() {
+	// CMS rendering
+	F.route('/*', view_page);
+	F.route('/demo/');
 
-exports.install = function () {
-    // CMS rendering
-    F.route('/*', view_page);
-    F.route('/demo/');
+	// POSTS
+	F.route('#blogs',            view_blogs, ['*Post']);
+	F.route('#blogsdetail',      view_blogs_detail, ['*Post']);
 
-    // POSTS
-    F.route('#blogs', view_blogs, ['*Post']);
-    F.route('#blogsdetail', view_blogs_detail, ['*Post']);
-
-    // FILES
+	// FILES
     F.file('sitemap.xml', file_xml);
-    F.file('/download/', file_read);
+	F.file('/download/', file_read);
 };
 
 // ==========================================================================
@@ -20,20 +19,9 @@ exports.install = function () {
 // ==========================================================================
 
 function view_page() {
-    var self = this;
-    // models/pages.js --> Controller.prototype.render()
-    self.render(self.url);
-}
-
-//TODO A supprimer
-function view_dynamic() {
-    var self = this;
-    var options = {};
-    console.log("Dynamic !!!");
-    options.category = 'Pages';
-    //console.log(self);
-    options.path = self.url;
-    self.$get(options, self.callback);
+	var self = this;
+	// models/pages.js --> Controller.prototype.render()
+	self.render(self.url);
 }
 
 // ==========================================================================
@@ -45,73 +33,74 @@ function view_dynamic() {
 // URL: /download/*.*
 function file_read(req, res) {
 
-    var id = req.split[1].replace('.' + req.extension, '');
-    var resize = req.query.s && (req.extension === 'jpg' || req.extension === 'gif' || req.extension === 'png') ? true : false;
+	var id = req.split[1].replace('.' + req.extension, '');
+	var resize = req.query.s && (req.extension === 'jpg' || req.extension === 'gif' || req.extension === 'png') ? true : false;
 
-    if (!resize) {
-        // Reads specific file by ID
-        F.exists(req, res, function (next, filename) {
-            DB('files').binary.read(id, function (err, stream, header) {
+	if (!resize) {
+		// Reads specific file by ID
+		F.exists(req, res, function(next, filename) {
+			DB('files').binary.read(id, function(err, stream, header) {
 
-                if (err) {
-                    next();
-                    return res.throw404();
-                }
+				if (err) {
+					next();
+					return res.throw404();
+				}
 
-                var writer = require('fs').createWriteStream(filename);
+				var writer = require('fs').createWriteStream(filename);
 
-                CLEANUP(writer, function () {
-                    res.file(filename);
-                    next();
-                });
+				CLEANUP(writer, function() {
+					res.file(filename);
+					next();
+				});
 
-                stream.pipe(writer);
-            });
-        });
-        return;
-    }
+				stream.pipe(writer);
+			});
+		});
+		return;
+	}
 
-    // Custom image resizing
-    var size;
+	// Custom image resizing
 
-    // Small hack for the file cache.
-    // F.exists() uses req.uri.pathname for creating temp identificator and skips all query strings by creating (because this hack).
-    if (req.query.s) {
-        size = req.query.s.parseInt();
-        req.uri.pathname = req.uri.pathname.replace('.', size + '.');
-    }
+	var size;
 
-    // Below method checks if the file exists (processed) in temporary directory
-    // More information in total.js documentation
-    F.exists(req, res, 10, function (next, filename) {
+	// Small hack for the file cache.
+	// F.exists() uses req.uri.pathname for creating temp identificator and skips all query strings by creating (because this hack).
+	if (req.query.s) {
+		size = req.query.s.parseInt();
+		req.uri.pathname = req.uri.pathname.replace('.', size + '.');
+	}
 
-        // Reads specific file by ID
-        DB('files').binary.read(id, function (err, stream, header) {
+	// Below method checks if the file exists (processed) in temporary directory
+	// More information in total.js documentation
+	F.exists(req, res, 10, function(next, filename) {
 
-            if (err) {
-                next();
-                return res.throw404();
-            }
+		// Reads specific file by ID
+		DB('files').binary.read(id, function(err, stream, header) {
 
-            var writer = require('fs').createWriteStream(filename);
+			if (err) {
+				next();
+				return res.throw404();
+			}
 
-            CLEANUP(writer, function () {
+			var writer = require('fs').createWriteStream(filename);
 
-                // Releases F.exists()
-                next();
+			CLEANUP(writer, function() {
 
-                // Image processing
-                res.image(filename, function (image) {
-                    image.output(req.extension);
-                    req.extension === 'jpg' && image.quality(85);
-                    size && image.resize(size + '%');
-                    image.minify();
-                });
-            });
+				// Releases F.exists()
+				next();
 
-            stream.pipe(writer);
-        });
-    });
+				// Image processing
+				res.image(filename, function(image) {
+					image.output(req.extension);
+					req.extension === 'jpg' && image.quality(85);
+					size && image.resize(size + '%');
+					image.minify();
+				});
+			});
+
+			stream.pipe(writer);
+		});
+	});
 }
 
 // ============================================
@@ -119,26 +108,31 @@ function file_read(req, res) {
 // ============================================
 
 function view_blogs() {
-    var self = this;
-    var options = {};
+	var self = this;
+	var options = {};
 
-    options.category = 'Blogs';
+	options.category = 'Blogs';
 
-    if (self.query.q)
-        options.search = self.query.q;
+	if (self.query.q)
+		options.search = self.query.q;
 
-    if (self.query.page)
-        options.page = self.query.page;
+	if (self.query.page)
+		options.page = self.query.page;
 
-    self.$query(options, self.callback('blogs-all'));
+	self.$query(options, self.callback('blogs-all'));
 }
 
 function view_blogs_detail(linker) {
-    var self = this;
-    var options = {};
-    options.category = 'Blogs';
-    options.linker = linker;
-    self.$get(options, self.callback('blogs-detail'));
+	var self = this;
+	var options = {};
+	options.category = 'Blogs';
+	options.linker = linker;
+	self.$read(options, function(err, response) {
+		if (err)
+			return self.throw404(err);
+		NOSQL('posts').counter.hit(response.id);
+		self.view('blogs-detail', response);
+	});
 }
 
 // ============================================

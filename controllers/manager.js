@@ -2,10 +2,10 @@ const SITEMAP = {};
 const Fs = require('fs');
 
 exports.install = function() {
+	var url = CONFIG('manager-url');
 	// Auto-localize static HTML templates
 	F.localize('/templates/*.html', ['compress']);
 
-	var url = CONFIG('manager-url');
 
 	// COMMON
 	F.route(url + '/*', '~manager');
@@ -20,22 +20,23 @@ exports.install = function() {
 
 	// POSTS
 	F.route(url + '/api/posts/',               json_query, ['*Post']);
-	F.route(url + '/api/posts/',               json_save, ['post', '*Post'], 512);
+	F.route(url + '/api/posts/',               json_save,   ['*Post', 'post'], 512);
 	F.route(url + '/api/posts/{id}/',          json_read, ['*Post']);
-	F.route(url + '/api/posts/',               json_remove, ['delete', '*Post']);
+	F.route(url + '/api/posts/',               json_remove, ['*Post', 'delete']);
+	F.route(url + '/api/posts/{id}/stats/',    json_stats,  ['*Post']);
 	F.route(url + '/api/posts/clear/',         json_clear, ['*Post']);
 	F.route(url + '/api/posts/codelists/',     json_posts_codelists);
 
 	// PAGES
 	F.route(url + '/api/pages/',               json_query, ['*Page']);
-	F.route(url + '/api/pages/',               json_pages_save, ['post', '*Page'], 512);
-	F.route(url + '/api/pages/',               json_remove, ['delete', '*Page']);
+	F.route(url + '/api/pages/',               json_remove, ['*Page', 'delete']);
 	F.route(url + '/api/pages/{id}/',          json_read, ['*Page']);
+	F.route(url + '/api/pages/clear/',         json_clear,  ['*Page']);
+	F.route(url + '/api/pages/{id}/stats/',    json_stats,  ['*Page']);
+	F.route(url + '/api/pages/',               json_pages_save, ['*Page', 'post'], 512);
 	F.route(url + '/api/pages/preview/',       view_pages_preview, ['json'], 512);
 	F.route(url + '/api/pages/dependencies/',  json_pages_dependencies);
-	F.route(url + '/api/pages/clear/',         json_clear, ['*Page']);
 	F.route(url + '/api/pages/sitemap/',       json_pages_sitemap);
-        
         // DYNPAGES
         F.route(url + '/api/dynpages/',            json_query, ['*Dynpage']);
         F.route(url + '/api/dynpages/',            json_dynpages_save, ['post', '*Dynpage'], 512);
@@ -43,15 +44,16 @@ exports.install = function() {
 
 	// WIDGETS
 	F.route(url + '/api/widgets/',             json_query, ['*Widget']);
-	F.route(url + '/api/widgets/',             json_widgets_save, ['post', '*Widget']);
+	F.route(url + '/api/widgets/',             json_save,   ['post', '*Widget']);
 	F.route(url + '/api/widgets/',             json_remove, ['delete', '*Widget']);
 	F.route(url + '/api/widgets/{id}/',        json_read, ['*Widget']);
 	F.route(url + '/api/widgets/clear/',       json_clear, ['*Widget']);
 
 	// NEWSLETTER
 	F.route(url + '/api/newsletter/',          json_query, ['*Newsletter']);
-	F.route(url + '/api/newsletter/csv/',      file_newsletter, ['*Newsletter']);
 	F.route(url + '/api/newsletter/clear/',    json_clear, ['*Newsletter']);
+	F.route(url + '/api/newsletter/stats/',    json_stats,  ['*Newsletter']);
+	F.route(url + '/newsletter/export/',       file_newsletter, ['*Newsletter']);
 
 	// SETTINGS
 	F.route(url + '/api/settings/',            json_settings, ['*Settings']);
@@ -79,10 +81,7 @@ function upload() {
 			setTimeout(next, 100);
 		});
 
-	}, function() {
-		// Returns response
-		self.json(id);
-	});
+	}, () => self.json(id));
 }
 
 // Upload base64
@@ -95,7 +94,6 @@ function upload_base64() {
 	}
 
 	var type = self.body.file.base64ContentType();
-	var data = self.body.file.base64ToBuffer();
 	var ext;
 
 	switch (type) {
@@ -108,8 +106,12 @@ function upload_base64() {
 		case 'image/gif':
 			ext = '.gif';
 			break;
+		default:
+			self.json(null);
+			return;
 	}
 
+	var data = self.body.file.base64ToBuffer();
 	var id = DB('files').binary.insert('base64' + ext, data);
 	self.json('/download/' + id + ext);
 }
@@ -122,29 +124,48 @@ function redirect_logoff() {
 }
 
 // ==========================================================================
-// SCHEMA CRUD OPERATIONS
+// FILES
 // ==========================================================================
 
+// Clears all uploaded files
+function json_files_clear() {
+
+	U.ls(DB('files').binary.directory, function(files) {
+		files.wait((item, next) => Fs.unlink(item, next));
+	});
+
+	this.json(SUCCESS(true));
+}
+
+// ==========================================================================
+// COMMON CRUD OPERATIONS
+// ==========================================================================
+
+// Reads all items
 function json_query() {
 	var self = this;
 	self.$query(self.query, self.callback());
 }
 
+// Saves specific item
 function json_save() {
 	var self = this;
 	self.body.$save(self, self.callback());
 }
 
+// Removes specific item
 function json_remove() {
 	var self = this;
 	self.$remove(self.body.id, self.callback());
 }
 
+// Clears all items
 function json_clear() {
 	var self = this;
 	self.$workflow('clear', self.callback());
 }
 
+// Reads a specific item by ID
 function json_read(id) {
 	var self = this;
 	var options = {};
@@ -152,6 +173,11 @@ function json_read(id) {
 	self.$get(options, self.callback());
 }
 
+function json_stats(id) {
+	var self = this;
+	self.id = id;
+	self.$workflow('stats', self, self.callback());
+}
 // ==========================================================================
 // DASHBOARD
 // ==========================================================================
@@ -188,8 +214,7 @@ function json_dashboard() {
 		var pending = [];
 
 		EACHSCHEMA(function(group, name, schema) {
-			if (!schema.operations || !schema.operations['dashboard'])
-				return;
+			if (schema.operations && schema.operations['dashboard'])
 			pending.push(schema);
 		});
 
@@ -235,12 +260,19 @@ function json_dashboard_clear() {
 
 // ==========================================================================
 // POSTS
-// ==========================================================================
-
-// Reads all post categories and manufacturers
+// =======================ads all post categories and manufacturers
 function json_posts_codelists() {
 	var self = this;
-	self.json({ categories: F.global.posts, templates: F.config.custom.templates });
+	self.json({ categories: F.global.posts, templates: F.config.custom.templatesposts });
+}
+
+function json_posts_stats(id) {
+	var self = this;
+	NOSQL('posts').counter.monthly(id, function(err, views) {
+		var model = SINGLETON('posts.stats');
+		model.views = views;
+		self.json(model);
+	});
 }
 
 // ==========================================================================
@@ -268,7 +300,7 @@ function json_pages_save() {
 
 	// Is auto-creating URL?
 	if (self.body.url[0] === '-')
-		self.body.$async(self.callback(), 1).$workflow('url', self).$save(self);
+		self.body.$async(self.callback(), 1).$workflow('url').$save(self);
 	else
 		self.body.$save(self, self.callback());
 
@@ -280,6 +312,15 @@ function json_pages_sitemap() {
 	SITEMAP.sitemap = F.global.sitemap;
 	SITEMAP.partial = F.global.partial;
 	this.json(SITEMAP);
+}
+
+function json_pages_stats(id) {
+	var self = this;
+	NOSQL('pages').counter.monthly(id, function(err, views) {
+		var model = SINGLETON('pages.stats');
+		model.views = views;
+		self.json(model);
+	});
 }
 
 // ==========================================================================
@@ -298,25 +339,6 @@ function json_dynpages_save() {
 }
 
 // ==========================================================================
-// WIDGETS
-// ==========================================================================
-
-// Saves (updates or creates) specific widget
-function json_widgets_save() {
-	var self = this;
-	self.body.$save(self, self.callback());
-
-	// Clears view cache
-	setTimeout(() => F.cache.removeAll('cache.'));
-}
-
-// Clears all widgets
-function json_widgets_clear() {
-	var self = this;
-	self.$workflow('clear', self.callback());
-}
-
-// ==========================================================================
 // NEWSLETTER
 // ==========================================================================
 
@@ -326,11 +348,6 @@ function file_newsletter() {
 	self.$workflow('download', self);
 }
 
-// Clears all email addreses in newsletter
-function json_newsletter_clear() {
-	var self = this;
-	self.$workflow('clear', self.callback());
-}
 
 // ==========================================================================
 // SETTINGS
@@ -345,5 +362,5 @@ function json_settings() {
 // Saves and refresh custom settings
 function json_settings_save() {
 	var self = this;
-	self.body.$async(self.callback(), 0).$save().$workflow('load');
+	self.body.$async(self.callback(), 0).$save(self).$workflow('load');
 }

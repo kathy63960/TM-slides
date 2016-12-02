@@ -213,6 +213,8 @@
 					cmseditor.instance.getTarget().attr('src', '/download/' + response[0]);
 					cmseditor.instance.change(true);
 				}
+
+				cmseditor.instance.autoresize();
 			});
 		});
 	}, 1000);
@@ -238,6 +240,16 @@
 			self.html('<div style="margin:0 auto"><iframe src="about:blank"></iframe></div>');
 			iframe = self.find('iframe');
 			container = self.find('div');
+		};
+
+		self.autoresize = function() {
+			setTimeout(function() {
+				self.resize(true);
+			}, 500);
+			setTimeout(function() {
+				self.resize(false);
+			}, 1500);
+			return self;
 		};
 
 		self.device = function(type) {
@@ -579,7 +591,9 @@
 					info.html('&lt;{0}{1}&gt;'.format(tag.toLowerCase(), tag === 'BR' || tag === 'HR' ? ' /' : ''));
 
 				var wrap = self.getParent('CMS_widget') || self.getParent('CMS_template');
+
 				cmseditor.wrap = wrap;
+				cmseditor.wrapremove = self.getParent('CMS_remove');
 
 				panel.css({ left: left, top: off.top - panel.innerHeight() - 5 });
 				panel.find('#CMS_panel_buttons_move').toggle(wrap && wrap.length ? true : false);
@@ -609,7 +623,7 @@
 						disabled = self.getParent('CMS_repeat') === null;
 
 					if (disabled && name === 'remove')
-						disabled = self.getParent('CMS_remove') === null;
+						disabled = cmseditor.wrapremove === null;
 
 					if (disabled && name === 'widgets') {
 						cmseditor.wrap_widgets = self.getParent('CMS_widgets', 5);
@@ -633,6 +647,52 @@
 				if (!target.hasClass('CMS_multiline'))
 					text = text.replace(/\n\r/g, ' ');
 				self.getDocument().execCommand('insertText', false, text.trim().replace(/\s{2,}/g, ' ').replace(/\&nbsp;/g, ' '));
+			});
+
+			body.on('dragenter dragover dragexit drop dragleave', function (e) {
+
+				e.stopPropagation();
+				e.preventDefault();
+
+				switch (e.type) {
+					case 'drop':
+						break;
+					case 'dragenter':
+					case 'dragover':
+						return;
+					case 'dragexit':
+					case 'dragleave':
+					default:
+						return;
+				}
+
+				var el = $(e.target);
+				if (e.target.nodeName !== 'IMG' || !el.hasClass('CMS_edit') || el.attr('data-width'))
+					return;
+
+				var files = e.originalEvent.dataTransfer.files;
+				var data = new FormData();
+				var errmsg = $('#cmseditor_inlineupload').attr('data-error-large');
+
+				SETTER('loading', 'show');
+				data.append('file0', files[0]);
+
+				UPLOAD('{0}/upload/'.format(managerurl), data, function(response, err) {
+
+					SETTER('loading', 'hide', 100);
+
+					if (err) {
+						SETTER('message', 'warning', errmsg);
+						return;
+					}
+
+					if (response && response.length) {
+						el.attr('src', '/download/' + response[0]);
+						cmseditor.instance.change(true);
+					}
+
+					cmseditor.instance.autoresize();
+				});
 			});
 
 			body.unbind('keydown').on('keydown', function(e) {
@@ -724,6 +784,10 @@
 
 			body.find('#CMS_panel').on('mouseenter mouseleave', '.fa-plug', function(e) {
 				cmseditor.wrap_widgets && cmseditor.wrap_widgets.length && cmseditor.wrap_widgets.toggleClass('CMS_selected_template', e.type === 'mouseenter');
+			});
+
+			body.find('#CMS_panel').on('mouseenter mouseleave', '.fa-trash', function(e) {
+				cmseditor.wrapremove && cmseditor.wrapremove.toggleClass('CMS_operation', e.type === 'mouseenter');
 			});
 
 			body.find('#CMS_panel').on('click', 'span', function(e) {
@@ -936,6 +1000,7 @@
 							}
 						}
 
+						self.autoresize();
 						self.change(true);
 						break;
 				}
@@ -972,8 +1037,8 @@
 				var elheight = contents.find('#cmseditorheight');
 				if (!elheight.length)
 					return self.resize(500);
-				var h = navigator.userAgent.indexOf('Safari') === -1 ? contents.outerHeight() : elheight.offset().top;
-				iframe.css({ height: h + 50 });
+				var h = navigator.userAgent.indexOf('Safari') === -1 ? $(contents).find('body').get(0).scrollHeight : elheight.offset().top + 80;
+				iframe.css({ height: h });
 				width = contents.width();
 				setTimeout(function() {
 					SETTER('form', 'resize');
@@ -1099,6 +1164,8 @@
 						target.attr('src', response + '?s=' + size.replace('%', ''));
 					} else
 						target.attr('src', response);
+
+					cmseditor.instance.autoresize();
 				}, 1000);
 
 				setTimeout(hide, 1000);
@@ -1236,6 +1303,7 @@
 
 			target.attr('class', clsnames);
 			cmseditor.instance.change(true);
+			cmseditor.instance.autoresize();
 			hide();
 		};
 	});
@@ -1265,9 +1333,9 @@
 			}
 
 			editor.doFind('#CMS').html(cmseditor.source);
-			editor.resize();
 			editor.change(true);
 			editor.load('sourcecode');
+			editor.autoresize();
 			hide();
 		};
 

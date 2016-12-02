@@ -8,7 +8,7 @@ COMPONENT('click', function() {
 		if (typeof(value) === 'string')
 			self.set(self.parser(value));
 		else
-			self.get(self.attr('data-component-path'))(self);
+			self.get(self.attr('data-jc-path'))(self);
 	};
 
 	self.make = function() {
@@ -42,10 +42,10 @@ COMPONENT('visible', function() {
 	self.setter = function(value) {
 		var is = true;
 		if (condition)
-			is = EVALUATE(self.path, condition);
+			is = EVALUATE(self.path, condition) ? true : false;
 		else
 			is = value ? true : false;
-		self.element.toggleClass('hidden', !is);
+		self.toggle('hidden', !is);
 	};
 });
 
@@ -243,7 +243,7 @@ COMPONENT('dropdown', function() {
 		self.element.addClass('ui-dropdown-container');
 
 		var label = self.html();
-		var html = '<div class="ui-dropdown"><span class="fa fa-sort"></span><select data-component-bind="">{0}</select></div>'.format(options.join(''));
+		var html = '<div class="ui-dropdown"><span class="fa fa-sort"></span><select data-jc-bind="">{0}</select></div>'.format(options.join(''));
 		var builder = [];
 
 		if (label.length) {
@@ -333,9 +333,9 @@ COMPONENT('textbox', function() {
 		attrs.attr('type', self.type === 'password' ? self.type : 'text');
 		attrs.attr('placeholder', self.attr('data-placeholder'));
 		attrs.attr('maxlength', self.attr('data-maxlength'));
-		attrs.attr('data-component-keypress', self.attr('data-component-keypress'));
-		attrs.attr('data-component-keypress-delay', self.attr('data-component-keypress-delay'));
-		attrs.attr('data-component-bind', '');
+		attrs.attr('data-jc-keypress', self.attr('data-jc-keypress'));
+		attrs.attr('data-jc-keypress-delay', self.attr('data-jc-keypress-delay'));
+		attrs.attr('data-jc-bind', '');
 
 		tmp = self.attr('data-align');
 		tmp && attrs.attr('class', 'ui-' + tmp);
@@ -426,7 +426,7 @@ COMPONENT('textarea', function() {
 
 		var is = false;
 		var type = typeof(value);
-		if (input.prop('disabled') || isRequired)
+		if (input.prop('disabled') || !isRequired)
 			return true;
 
 		if (type === 'undefined' || type === 'object')
@@ -455,7 +455,7 @@ COMPONENT('textarea', function() {
 
 		attrs.attr('placeholder', self.attr('data-placeholder'));
 		attrs.attr('maxlength', self.attr('data-maxlength'));
-		attrs.attr('data-component-bind', '');
+		attrs.attr('data-jc-bind', '');
 
 		tmp = self.attr('data-height');
 		tmp && attrs.attr('style', 'height:' + tmp);
@@ -479,7 +479,7 @@ COMPONENT('textarea', function() {
 
 		builder = [];
 		builder.push('<div class="ui-textarea-label{0}">'.format(isRequired ? ' ui-textarea-label-required' : ''));
-		icon && builder.push('<span class="fa {0}"></span> '.format(icon));
+		icon && builder.push('<span class="fa {0}"></span>'.format(icon));
 		builder.push(content);
 		builder.push(':</div><div class="ui-textarea">{0}</div>'.format(html));
 
@@ -550,7 +550,7 @@ COMPONENT('repeater', function() {
 		var html = element.html();
 		element.remove();
 		self.template = Tangular.compile(html);
-		recompile = html.indexOf('data-component="') !== -1;
+		recompile = html.indexOf('data-jc="') !== -1;
 	};
 
 	self.setter = function(value) {
@@ -996,7 +996,7 @@ COMPONENT('form', function() {
 		});
 
 		enter === 'true' && self.element.on('keydown', 'input', function(e) {
-			e.keyCode === 13 && self.element.find('button[name="submit"]').get(0).disabled && self.submit(hide);
+			e.keyCode === 13 && !self.element.find('button[name="submit"]').get(0).disabled && self.submit(hide);
 		});
 	};
 
@@ -1021,94 +1021,20 @@ COMPONENT('form', function() {
 		self.release(false);
 
 		var el = self.element.find('input,select,textarea');
-		el.length > 0 && el.eq(0).focus();
+		el.length && el.eq(0).focus();
+
 		window.$$form_level++;
 		self.element.css('z-index', window.$$form_level * 10);
-		self.element.animate({ scrollTop: 0 }, 0, function() {
-			setTimeout(function() {
-				self.element.find('.ui-form').addClass('ui-form-animate');
-			}, 300);
-		});
-	};
-});
+		self.element.scrollTop(0);
 
-COMPONENT('pictures', function() {
+		setTimeout(function() {
+			self.element.find('.ui-form').addClass('ui-form-animate');
+		}, 300);
 
-	var self = this;
-
-	self.skip = false;
-	self.readonly();
-
-	self.make = function() {
-		self.element.addClass('ui-pictures');
-	};
-
-	self.setter = function(value) {
-
-		if (typeof(value) === 'string')
-			value = value.split(',');
-
-		if (this.skip) {
-			this.skip = false;
-			return;
-		}
-
-		this.element.find('.fa').unbind('click');
-		this.element.find('img').unbind('click');
-		this.element.empty();
-
-		if (!(value instanceof Array) || !value.length)
-			return;
-
-		var count = 0;
-		var builder = [];
-
-		for (var i = 0, length = value.length; i < length; i++) {
-			var id = value[i];
-			id && builder.push('<div data-id="' + id + '" class="col-xs-3 m"><span class="fa fa-times"></span><img src="/images/small/{0}.jpg" class="img-responsive" alt="" /></div>'.format(id));
-		}
-
-		self.html(builder);
-		setTimeout(FN('() => $(window).trigger("resize");'), 500);
-
-		this.element.find('.fa').bind('click', function(e) {
-
-			var el = $(this).parent().remove();
-			var id = [];
-
-			self.element.find('div').each(function() {
-				id.push($(this).attr('data-id'));
-			});
-
-			self.skip = true;
-			self.set(id);
-		});
-
-		this.element.find('img').bind('click', function() {
-
-			var selected = self.element.find('.selected');
-			var el = $(this);
-
-			el.toggleClass('selected');
-
-			if (!selected.length)
-				return;
-
-			var id1 = el.parent().attr('data-id');
-			var id2 = selected.parent().attr('data-id');
-			var arr = self.get();
-
-			var index1 = arr.indexOf(id1);
-			var index2 = arr.indexOf(id2);
-
-			arr[index1] = id2;
-			arr[index2] = id1;
-
-			setTimeout(function() {
-				self.change();
-				self.set(arr);
-			}, 500);
-		});
+		// Fixes a problem with freezing of scrolling in Chrome
+		setTimeout2(self.id, function() {
+			self.element.css('z-index', (window.$$form_level * 10) + 1);
+		}, 1000);
 	};
 });
 
@@ -2056,38 +1982,6 @@ COMPONENT('tabmenu', function() {
 	};
 });
 
-COMPONENT('disable', function() {
-	var self = this;
-	var condition = self.attr('data-if');
-	var selector = self.attr('data-selector') || 'input,texarea,select';
-
-	self.readonly();
-
-	self.setter = function(value) {
-		var is = true;
-
-		if (condition)
-			is = EVALUATE(self.path, condition);
-		else
-			is = value ? false : true;
-
-		self.find(selector).each(function() {
-			var el = $(this);
-			var tag = el.get(0).tagName;
-			if (tag === 'INPUT' || tag === 'SELECT') {
-				el.prop('disabled', is);
-				el.parent().parent().toggleClass('ui-disabled', is);
-				return;
-			}
-			el.toggleClass('ui-disabled', is);
-		});
-	};
-
-	self.state = function(type) {
-		self.update();
-	};
-});
-
 COMPONENT('confirm', function() {
 	var self = this;
 	var is = false;
@@ -2728,9 +2622,210 @@ COMPONENT('checkboxlist', function() {
 		self.redraw(items);
 	};
 });
+
+COMPONENT('textboxlist', function() {
+	var self = this;
+	var container;
+	var empty = {};
+	var skip = false;
+
+	self.template = Tangular.compile('<div class="ui-textboxlist-item"><div><i class="fa fa-times"></i></div><div><input type="text" maxlength="{{ max }}" placeholder="{{ placeholder }}" value="{{ value }}" /></div></div>');
+	self.make = function() {
+
+		empty.max = (self.attr('data-maxlength') || '100').parseInt();
+		empty.placeholder = self.attr('data-placeholder');
+		empty.value = '';
+
+		var html = self.html();
+		var icon = self.attr('data-icon');
+
+		if (icon)
+			icon = '<i class="fa {0}"></i>'.format(icon);
+
+		self.toggle('ui-textboxlist');
+		self.html((html ? '<div class="ui-textboxlist-label">{1}{0}:</div>'.format(html, icon) : '') + '<div class="ui-textboxlist-items"></div>' + self.template(empty).replace('-item"', '-item ui-textboxlist-base"'));
+		container = self.find('.ui-textboxlist-items');
+
+		self.element.on('click', '.fa-times', function() {
+			var el = $(this);
+			var parent = el.closest('.ui-textboxlist-item');
+			var value = parent.find('input').val();
+			var arr = self.getArray();
+
+			parent.remove();
+
+			var index = arr.indexOf(value);
+			if (index === -1)
+				return;
+			arr.splice(index, 1);
+			skip = true;
+			self.set(self.path, arr, 2);
+			self.change(true);
+		});
+
+		self.getArray = function() {
+			var arr = self.get();
+			if (!arr)  {
+				arr = [];
+				self.set(arr);
+			}
+			return arr;
+		};
+
+		self.element.on('change keypress', 'input', function(e) {
+
+			if (e.type !== 'change' && e.keyCode !== 13)
+				return;
+
+			var el = $(this);
+
+			var value = this.value.trim();
+			if (!value)
+				return;
+
+			var arr = [];
+			var base = el.closest('.ui-textboxlist-base').length > 0;
+
+			if (base && e.type === 'change')
+				return;
+
+			if (base) {
+				self.getArray().indexOf(value) === -1 && self.push(self.path, value, 2);
+				this.value = '';
+				self.change(true);
+				return;
+			}
+
+			container.find('input').each(function() {
+				arr.push(this.value.trim());
+			});
+
+			skip = true;
+			self.set(self.path, arr, 2);
+			self.change(true);
+		});
+	};
+
+	self.setter = function(value, path, type) {
+
+		if (skip) {
+			skip = false;
+			return;
+		}
+
+		if (!value || !value.length) {
+			container.empty();
+			return;
+		}
+
+		var builder = [];
+
+		value.forEach(function(item) {
+			empty.value = item;
+			builder.push(self.template(empty));
+		});
+
+		container.empty().append(builder.join(''));
+	};
+});
+
+COMPONENT('nosqlcounter', function() {
+	var self = this;
+	var chart;
+	var count = (self.attr('data-count') || '12').parseInt();
+
+	self.readonly();
+	self.make = function() {
+		self.toggle('ui-nosqlcounter', true);
+	};
+
+	self.setter = function(value) {
+
+		if (!value || !value.length)
+			return self.empty();
+
+		var max = value.length - count;
+		if (max < 0)
+			max = 0;
+
+		value = value.slice(max, value.length);
+		max = value.scalar('max', 'value');
+
+		var w = self.element.width();
+
+		var bar = 100 / count;
+		var builder = [];
+		var months = FIND('calendar').months;
+		var current = new Date().format('yyyyMM');
+		var cls = '';
+
+		value.forEach(function(item, index) {
+			var val = item.value;
+			if (val > 999)
+				val = (val / 1000).format(0, 2) + 'K';
+			var h = (item.value / max) * 60;
+			h += 40;
+
+			cls = '';
+
+			if (item.id === current)
+				cls += (cls ? ' ' : '') + 'current';
+
+			if (index === 11)
+				cls += (cls ? ' ' : '') + 'last';
+
+			builder.push('<div style="width:{0}%;height:{1}%" title="{3}" class="{4}"><span>{2}</span></div>'.format(bar.format(0, 3), h.format(0, 3), val, months[item.month - 1] + ' ' + item.year, cls));
+		});
+
+		self.html(builder);
+	};
+});
+
 // ==========================================================
 // @{end}
 // ==========================================================
+
+COMPONENT('disable', function() {
+	var self = this;
+	var condition;
+	var selector;
+	var validate;
+
+	self.readonly();
+
+	self.make = function() {
+		condition = self.attr('data-if');
+		selector = self.attr('data-selector') || 'input,texarea,select';
+		validate = self.attr('data-validate');
+		if (validate)
+			validate = validate.split(',').trim();
+	};
+
+	self.setter = function(value) {
+		var is = true;
+
+		if (condition)
+			is = EVALUATE(self.path, condition);
+		else
+			is = value ? false : true;
+
+		self.find(selector).each(function() {
+			var el = $(this);
+			var tag = el.get(0).tagName;
+			if (tag === 'INPUT' || tag === 'SELECT') {
+				el.prop('disabled', is);
+				el.parent().toggleClass('ui-disabled', is);
+			} else
+				el.toggleClass('ui-disabled', is);
+		});
+
+		validate && validate.forEach(function(key) { jC.reset(key); });
+	};
+
+	self.state = function(type) {
+		self.update();
+	};
+});
 
 COMPONENT('search', function() {
 
@@ -2748,9 +2843,9 @@ COMPONENT('search', function() {
 		options_delay = (self.attr('data-delay') || '200').parseInt();
 	};
 
-	self.setter = function(value) {
+	self.setter = function(value, path, type) {
 
-		if (!options_selector || !options_attribute)
+		if (!options_selector || !options_attribute || value == null)
 			return;
 
 		KEYPRESS(function() {
@@ -2763,16 +2858,148 @@ COMPONENT('search', function() {
 			}
 
 			var search = value.toLowerCase().replace(/y/gi, 'i');
+			var hide = [];
+			var show = [];
 
 			elements.toArray().waitFor(function(item, next) {
 				var el = $(item);
 				var val = (el.attr(options_attribute) || '').toLowerCase().replace(/y/gi, 'i');
-				el.toggleClass(options_class, val.indexOf(search) === -1);
+				if (val.indexOf(search) === -1)
+					hide.push(el);
+				else
+					show.push(el);
 				setTimeout(next, 3);
+			}, function() {
+
+				hide.forEach(function(item) {
+					item.toggleClass(options_class, true);
+				});
+
+				show.forEach(function(item) {
+					item.toggleClass(options_class, false);
+				});
 			});
 
 		}, options_delay, 'search' + self.id);
 	};
+});
+
+COMPONENT('binder', function() {
+
+	var self = this;
+	var keys;
+	var keys_unique;
+
+	self.readonly();
+	self.blind();
+
+	self.make = function() {
+		self.watch('*', self.autobind);
+		self.scan();
+
+		self.on('component', function() {
+			setTimeout2(self.id, self.scan, 200);
+		});
+
+		self.on('destroy', function() {
+			setTimeout2(self.id, self.scan, 200);
+		});
+	};
+
+	self.autobind = function(path, value) {
+		var mapper = keys[path];
+		var template = {};
+		mapper && mapper.forEach(function(item) {
+			var value = self.get(item.path);
+			template.value = value;
+			item.classes && classes(item.element, item.classes(value));
+			item.visible && item.element.toggleClass('hidden', item.visible(value) ? false : true);
+			item.html && item.element.html(item.html(value));
+			item.template && item.element.html(item.template(template));
+		});
+	};
+
+	function classes(element, val) {
+		var add = '';
+		var rem = '';
+		val.split(' ').forEach(function(item) {
+			switch (item.substring(0, 1)) {
+				case '+':
+					add += (add ? ' ' : '') + item.substring(1);
+					break;
+				case '-':
+					rem += (rem ? ' ' : '') + item.substring(1);
+					break;
+				default:
+					add += (add ? ' ' : '') + item;
+					break;
+			}
+		});
+		rem && element.removeClass(rem);
+		add && element.addClass(add);
+	}
+
+	function decode(val) {
+		return val.replace(/\&\#39;/g, '\'');
+	}
+
+	self.scan = function() {
+		keys = {};
+		keys_unique = {};
+		self.find('[data-binder]').each(function() {
+
+			var el = $(this);
+			var path = el.attr('data-binder');
+			var arr = path.split('.');
+			var p = '';
+
+			var classes = el.attr('data-binder-class');
+			var html = el.attr('data-binder-html');
+			var visible = el.attr('data-binder-visible');
+			var obj = el.data('data-binder');
+
+			keys_unique[path] = true;
+
+			if (!obj) {
+				obj = {};
+				obj.path = path;
+				obj.element = el;
+				obj.classes = classes ? FN(decode(classes)) : undefined;
+				obj.html = html ? FN(decode(html)) : undefined;
+				obj.visible = visible ? FN(decode(visible)) : undefined;
+
+				var tmp = el.find('script[type="text/html"]');
+				var str = '';
+				if (tmp.length)
+					str = tmp.html();
+				else
+					str = el.html();
+
+				if (str.indexOf('{{') !== -1) {
+					obj.template = Tangular.compile(str);
+					tmp.length && tmp.remove();
+				}
+
+				el.data('data-binder', obj);
+			}
+
+			for (var i = 0, length = arr.length; i < length; i++) {
+				p += (p ? '.' : '') + arr[i];
+				if (keys[p])
+					keys[p].push(obj);
+				else
+					keys[p] = [obj];
+			}
+
+		});
+
+		Object.keys(keys_unique).forEach(function(key) {
+			self.autobind(key, self.get(key));
+		});
+
+		return self;
+	};
+
 });
 
 jC.parser(function(path, value, type) {
