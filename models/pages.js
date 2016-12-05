@@ -109,10 +109,10 @@ NEWSCHEMA('Page').make(function(schema) {
                             if(doc) {
                                 // Replace var in body var
                                 for(var i=1,len=dynItem.var.length; i<len;i++) {
-                                    doc.title = doc.title.replace('{{var'+i+'}}', dynItem.var[i]);
-                                    doc.description = doc.description.replace('{{var'+i+'}}', dynItem.var[i]);
-                                    doc.perex = doc.perex.replace('{{var'+i+'}}', dynItem.var[i]);
-                                    doc.body = doc.body.replace('{{var'+i+'}}', dynItem.var[i]);
+                                    doc.title = doc.title.replace(new RegExp('{{var'+i+'}}','g'), dynItem.var[i]);
+                                    doc.description = doc.description.replace(new RegExp('{{var'+i+'}}','g'), dynItem.var[i]);
+                                    doc.perex = doc.perex.replace(new RegExp('{{var'+i+'}}','g'), dynItem.var[i]);
+                                    doc.body = doc.body.replace(new RegExp('{{var'+i+'}}','g'), dynItem.var[i]);
                                 }
                             }
                             
