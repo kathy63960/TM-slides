@@ -144,10 +144,9 @@
                     colWidths: [100, 100, 100, 100, 50, 100, 100, 100, 100, 100, 100, 100],
                     rowHeaders: true,
                     manualColumnResize: true,
-                    colHeights: 150,
-                    height:500,
+                    height: 500,
                     contextMenu: ['row_above', 'row_below', 'remove_row'],
-                    colHeaders: ["title", "sitemap", "url","keywords", "langue","menu", "parent menu", "default page", "var1", "var2", "var3", "var4"],
+                    colHeaders: ["title", "sitemap", "url", "keywords", "langue", "menu", "parent menu", "default page", "var1", "var2", "var3", "var4"],
                     minSpareRows: 1,
                     columns: [
                         {'data': "title"},
@@ -182,6 +181,33 @@
                             dynpage_remove(dynpages.data[i].id);
                     }
                 });
+
+                function calculateSize() {
+                    var offset;
+                    var availableWidth,availableHeight;
+
+                    offset = Handsontable.Dom.offset(container[0]);
+                    availableWidth = Handsontable.Dom.innerWidth(document.body) - offset.left + window.scrollX;
+                    availableHeight = Handsontable.Dom.innerHeight(document.body) - offset.top + window.scrollY;
+
+                    container[0].style.width = availableWidth + 'px';
+                    container[0].style.height = availableHeight + 'px';
+
+                }
+
+                Handsontable.Dom.addEvent(window, 'resize', calculateSize);
+                /*Handsontable.Dom.addEvent(maximize, 'click', function () {
+                 maxed = !maxed;
+                 
+                 if (maxed) {
+                 calculateSize();
+                 }
+                 else {
+                 example.style.width = 400 + 'px';
+                 example.style.height = 400 + 'px';
+                 }
+                 hot1.render();
+                 });*/
 
                 dynpages_refresh(true);
 
