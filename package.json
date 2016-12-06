@@ -1,6 +1,6 @@
 {
-  "name": "CMS",
-  "description": "Simple and powerful CMS solution written in total.js / node.js.",
+  "name": "TM-Slides",
+  "description": "Simple and powerful CMS slides solution written in total.js / node.js.",
   "version": "4.1.0",
   "main": "release.js",
   "dependencies": {
