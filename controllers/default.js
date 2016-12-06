@@ -3,14 +3,13 @@ var isGenerated = false;
 exports.install = function() {
 	// CMS rendering
 	F.route('/*', view_page);
-	F.route('/demo/');
 
 	// POSTS
 	F.route('#blogs',            view_blogs, ['*Post']);
 	F.route('#blogsdetail',      view_blogs_detail, ['*Post']);
 
 	// FILES
-    F.file('sitemap.xml', file_xml);
+        F.file('sitemap.xml', file_xml);
 	F.file('/download/', file_read);
 };
 

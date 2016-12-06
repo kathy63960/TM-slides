@@ -245,7 +245,7 @@ NEWSCHEMA('Page').make(function(schema) {
 				response.breadcrumb = breadcrumb;
 
 				if (response.body)
-					response.body = response.body.replace(' id="CMS"', '');
+					response.body = '<section>' + response.body.replace(' id="CMS"', '') + '</section>';
 
 				if (!response.widgets)
 					return callback(response);
@@ -426,7 +426,7 @@ function refresh() {
 		});
 
                 Object.keys(navigation.mainmenu).forEach(function(key) {
-                        console.log(key);
+                        //console.log(key);
 			var parent = navigation.mainmenu[key].parent;
 			if (parent)
 				navigation.mainmenu[key].parent = link_parent[parent];
@@ -440,7 +440,7 @@ function refresh() {
 		F.global.navigations = navigation;
                 for(var i=0,len=navigation.mainmenu.length;i<len;i++) {
                     var elem = navigation.mainmenu[i];
-                    console.log(elem);
+                    //console.log(elem);
                     
                     if(elem.noIndex)
                         continue;
@@ -541,16 +541,36 @@ F.eval(function() {
 			var options = {};
 
 			options.language = self.language;
-			options.url = self.url;
+
+                        options.url = [];//self.url;
+                        Object.keys(F.global.sitemap).forEach(function(key) {
+                            if(F.global.sitemap[key].noIndex == false)
+                                options.url.push(key);
+                        });
+                        
 			options.controller = self;
 
-			GETSCHEMA('Page').operation('render', options, function(err, response) {
+			GETSCHEMA('Page').operation('render-multiple', options, function(err, response) {
 
 				if (err) {
 					self.status = 404;
 					self.plain(U.httpStatus(404, true));
 					return;
 				}
+                                
+                                var body=[];
+                                Object.keys(response).forEach(function(key) {
+                                    body.push({priority: response[key].priority , body:response[key].body});
+                                });
+                                
+                                body.orderBy('priority', false);
+                                
+                                response = response['/'];
+                                response.body =";"
+                                
+                                body.forEach(function(elem){
+                                    response.body += elem.body;
+                                });
 
 				self.repository.cms = true;
 				self.repository.render = true;

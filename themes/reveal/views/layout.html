@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="utf-8" />
+        <meta http-equiv="X-UA-Compatible" content="IE=10" />
+        <meta name="apple-mobile-web-app-capable" content="yes">
+        <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+
+        <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+        <meta name="robots" content="@{repository.index || 'all'},@{repository.follow || 'follow'}" />
+        <link rel="stylesheet" href="@{global.css}" />
+        <link rel="stylesheet" href="/@{theme}/css/reveal.css">
+        <link rel="stylesheet" href="/@{theme}/css/theme/moon.css" id="theme">
+        <script src="//cdnjs.cloudflare.com/ajax/libs/jquery/3.1.1/jquery.min.js"></script>
+        @{import('meta', 'head', 'default.css', 'default.js', 'favicon.ico')}
+        <!-- Printing and PDF exports -->
+        <script>
+            var link = document.createElement('link');
+            link.rel = 'stylesheet';
+            link.type = 'text/css';
+            link.href = window.location.search.match(/print-pdf/gi) ? '/@{theme}/css/print/pdf.css' : '/@{theme}/css/print/paper.css';
+            document.getElementsByTagName('head')[0].appendChild(link);
+        </script>
+
+        <!--[if lt IE 9]>
+        <script src="lib/js/html5shiv.js"></script>
+        <![endif]-->
+    </head>
+    <body>
+        <div class="reveal">
+
+            <!-- Any section element inside of this container is displayed as a slide -->
+            <div class="slides">
+                @{body}
+            </div>
+        </div>
+        <footer>
+            <div>&copy; 2015-2017 All rights reserved.</div>
+            <div><a href="http://www.totaljs.com">Powered by Total.js - Framework for Node.js</a></div>
+        </footer>
+        <script src="/@{theme}/lib/js/head.min.js"></script>
+        <script src="/@{theme}/js/reveal.js"></script>
+        <script>
+            Reveal.initialize({
+                controls: true,
+                progress: true,
+                history: true,
+                center: true,
+                transition: 'convex', // none/fade/slide/convex/concave/zoom
+                loop: true,
+                autoSlide: 10000
+            });
+        </script>
+    </body>
+</html>
