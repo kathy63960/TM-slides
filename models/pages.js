@@ -566,7 +566,7 @@ F.eval(function() {
                                 body.orderBy('priority', false);
                                 
                                 response = response['/'];
-                                response.body =";"
+                                response.body = "";
                                 
                                 body.forEach(function(elem){
                                     response.body += elem.body;
